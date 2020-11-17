@@ -11,7 +11,7 @@ public class PlayerController : MonoBehaviour
     public InstrumentPalette instrumentPalette;
     public Text noteIDText;
     public Text noteNameText;
-    public Transform noteLocator;
+    public Locator noteLocator;
 
     public Ring ringPrefab;    
 
@@ -50,15 +50,13 @@ public class PlayerController : MonoBehaviour
             instrumentPalette.holder.gameObject.SetActive(paused);
         }
 
-    }  
+    }
 
     // placing/tweaking notes
     void Interaction()
     {
         RaycastHit hit = new RaycastHit();
-
-        noteLocator.gameObject.SetActive(false);
-
+        
         activeRing = null;
 
         // first if we're looking at a Note
@@ -88,10 +86,14 @@ public class PlayerController : MonoBehaviour
                 noteIDText.text = "";
             }
 
+            if(noteLocator.locatorOn)
+            {
+                noteLocator.AnimateOff();
+            }
+
         } // now if we're looking at a Ring (placing a note)
         else if (Physics.Raycast(transform.position, cam.forward, out hit, Mathf.Infinity, 1<<10)) // 10 == Ring
         {
-            noteLocator.gameObject.SetActive(true);
 
             activeRing = hit.transform.GetComponentInParent<Ring>(); // so it's always important the collision object is the child of the ring
 
@@ -116,10 +118,10 @@ public class PlayerController : MonoBehaviour
                 }
             }
 
-            noteLocator.position = closestSpotPos;
-            noteLocator.position += (hit.normal * 0.025f);
+            noteLocator.transform.position = closestSpotPos;
+            noteLocator.transform.position += (hit.normal * 0.025f);
             var normal = hit.normal;
-            noteLocator.rotation = Quaternion.FromToRotation(Vector3.up, normal);// * transform.rotation;
+            noteLocator.transform.rotation = Quaternion.FromToRotation(Vector3.up, normal);// * transform.rotation;
 
 
             // drop a note if its empty
@@ -144,6 +146,12 @@ public class PlayerController : MonoBehaviour
                 Destroy(activeRing.gameObject);
             }
 
+            if(noteLocator.lastLocation != (cellNumber * 4) + spotID)
+            {
+                noteLocator.AnimateOn();
+                noteLocator.lastLocation = (cellNumber * 4) + spotID;
+            }
+
         } // end if (looking at ring)
         else
         { // if we're not looking at anything (so far)
@@ -158,6 +166,11 @@ public class PlayerController : MonoBehaviour
             {
                 instrumentPalette.activeInstrumentOption.DecrementNote();
                 instrumentPalette.OptionClicked(instrumentPalette.activeInstrumentOption);
+            }
+
+            if(noteLocator.locatorOn)
+            {
+                noteLocator.AnimateOff();
             }
 
         }
