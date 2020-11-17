@@ -938,12 +938,6 @@ RectTransform:
   m_AnchoredPosition: {x: 0, y: 0}
   m_SizeDelta: {x: 100, y: 100}
   m_Pivot: {x: 0.5, y: 0.5}
---- !u!4 &629504656 stripped
-Transform:
-  m_CorrespondingSourceObject: {fileID: 2960388585442406303, guid: 95f3a29c39e437d4c8bd8ecbe9fa15ee,
-    type: 3}
-  m_PrefabInstance: {fileID: 1253050162087302610}
-  m_PrefabAsset: {fileID: 0}
 --- !u!1 &651237230
 GameObject:
   m_ObjectHideFlags: 0
@@ -1247,6 +1241,18 @@ Transform:
   m_Father: {fileID: 0}
   m_RootOrder: 7
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &785661112 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 8874203054130303148, guid: 95f3a29c39e437d4c8bd8ecbe9fa15ee,
+    type: 3}
+  m_PrefabInstance: {fileID: 1253050162087302610}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 283dce95b7b871e4184971f64e936431, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &790852476
 GameObject:
   m_ObjectHideFlags: 0
@@ -1521,7 +1527,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1114683879}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 14.45, y: 7.95, z: 0.09}
+  m_LocalPosition: {x: 0.2, y: 13.91, z: 0.09}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 0}
@@ -1799,7 +1805,7 @@ MonoBehaviour:
   instrumentPalette: {fileID: 2002036587}
   noteIDText: {fileID: 607174828}
   noteNameText: {fileID: 1998352448}
-  noteLocator: {fileID: 629504656}
+  noteLocator: {fileID: 785661112}
   ringPrefab: {fileID: 6048066383107133507, guid: d33bfb878a9fc3c4198d99b442ea34bb,
     type: 3}
   activeRing: {fileID: 0}
