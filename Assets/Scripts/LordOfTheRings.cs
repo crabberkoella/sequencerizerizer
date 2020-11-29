@@ -84,9 +84,9 @@ public class LordOfTheRings : MonoBehaviour
             List<float> xPosses = new List<float>();
             List<float> zPosses = new List<float>();
 
-            foreach (int key in ring.notes.Keys)
+            foreach (int key in ring.placedNotes.Keys)
             {
-                Note note = ring.notes[key];
+                Note note = ring.placedNotes[key];
 
                 ringNoteIDs.Add(key);
                 ringNoteLevels.Add(note.startTime); // level and startTime are interchangeable, which can be confusing but it's really convenient when playing the AudioClip

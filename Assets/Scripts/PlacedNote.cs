@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using System.IO;
 
-public class Cell : MonoBehaviour
+public class PlacedNote : MonoBehaviour
 {
 
 

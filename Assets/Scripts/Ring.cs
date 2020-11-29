@@ -5,7 +5,7 @@ using UnityEngine;
 public class Ring : MonoBehaviour
 {
 
-    public Dictionary<int, Note> notes = new Dictionary<int, Note>();
+    public Dictionary<int, Note> placedNotes = new Dictionary<int, Note>();
 
     public Note notePrefab;
     public bool offset = false;
@@ -19,16 +19,16 @@ public class Ring : MonoBehaviour
             return;
         }
 
-        if (TimeKeeper.sixteenthPlayedThisFrame && notes.ContainsKey(TimeKeeper.notePlayed))
+        if (TimeKeeper.sixteenthPlayedThisFrame && placedNotes.ContainsKey(TimeKeeper.notePlayed))
         {
-            notes[TimeKeeper.notePlayed].PlayNote(offset);            
+            placedNotes[TimeKeeper.notePlayed].PlayNote(offset);            
         }
     }
 
     public void ToggleOffset()
     {
-        offset = true;
-        transform.rotation = Quaternion.Euler(0f, 5.625f/2f, 180f);
+        offset = !offset;
+        transform.rotation = (offset ? Quaternion.Euler(0f, 5.625f/2f, 180f) : Quaternion.identity);
     }
 
     public void CreateNote(int noteID, Vector3 position, InstrumentOption instrumentOption)
@@ -40,7 +40,7 @@ public class Ring : MonoBehaviour
 
         newNote.NoteStupidConstructor(this, key, instrumentOption.noteLevel, instrumentOption.instrumentName);
 
-        notes[key] = newNote;
+        placedNotes[key] = newNote;
     }
 
     public void CreateNoteFromSave(int noteID, Vector3 localRingPos, float noteLevel, string instrumentName)
@@ -50,7 +50,7 @@ public class Ring : MonoBehaviour
 
         newNote.NoteStupidConstructor(this, noteID, noteLevel, instrumentName);
 
-        notes[noteID] = newNote;
+        placedNotes[noteID] = newNote;
     }
 
 }

@@ -84,7 +84,7 @@ public class Note : MonoBehaviour
 
     public void DeleteNote()
     {
-        ownerRing.notes.Remove(noteID);
+        ownerRing.placedNotes.Remove(noteID);
         Destroy(gameObject);
     }
 
