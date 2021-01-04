@@ -63,7 +63,7 @@ public class PlayerController : MonoBehaviour
         if (Physics.Raycast(transform.position, cam.forward, out hit, Mathf.Infinity, 1 << 12)) // 12 == Note
         {
             activeNote = hit.transform.GetComponent<Note>();
-            int n = (int)(activeNote.startTime / 2f) + AllInstruments.instrumentStartingNotes[activeNote.instrumentName];
+            int n = (int)(activeNote.startTime / 4f) + AllInstruments.instrumentStartingNotes[activeNote.instrumentName];
             n = n % 12;
             noteIDText.text = AllInstruments.instrumentNoteIDToName[n]; // tmp (right now it's just the startTime/2, because we always play 2-second notes) <-- TO DO
             noteNameText.text = activeNote.instrumentName;

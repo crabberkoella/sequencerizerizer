@@ -55,20 +55,21 @@ public class Note : MonoBehaviour
         StartCoroutine(PlayNote_(offset, immediate));
     }
 
-    float playTime = 1.9f;
+    float playTime = 3.9f;
     IEnumerator PlayNote_(bool offset, bool immediate)
     {
         if(!TimeKeeper.mute || immediate)
         {
             audioSource.PlayScheduled(AudioSettings.dspTime + (immediate ? 0f : 2.0f) + (offset ? 0.125f : 0f));
-            audioSource.SetScheduledEndTime(AudioSettings.dspTime + 1.9f + (immediate ? 0f : 2.0f) + (offset ? 0.125f : 0f));
-        }        
+            audioSource.SetScheduledEndTime(AudioSettings.dspTime + 3.9f + (immediate ? 0f : 2.0f) + (offset ? 0.125f : 0f));
+        }
 
         yield return new WaitForSeconds((immediate ? 0f : 2f));
         float playTimer = playTime;
         while (playTimer > 0f)
         {
-            float b = lowestBrightness + ((playTimer/playTime) * (1f - lowestBrightness));
+            float progress = playTimer / playTime;
+            float b = lowestBrightness + (progress * (1f - lowestBrightness));
             GetComponent<MeshRenderer>().material.SetColor("_Brightness", new Color(b, b, b, 1f));
 
             playTimer -= Time.deltaTime;
@@ -96,7 +97,7 @@ public class Note : MonoBehaviour
         }
         else
         {
-            startTime += 2f;
+            startTime += 4f;
         }
         
 
@@ -115,7 +116,7 @@ public class Note : MonoBehaviour
         }
         else
         {
-            startTime -= 2f;
+            startTime -= 4f;
         }
             
 

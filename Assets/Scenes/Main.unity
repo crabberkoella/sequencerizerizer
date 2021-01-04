@@ -1097,18 +1097,11 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   allStupidAudioClips:
-  - {fileID: 8300000, guid: 389f5b0fc88ab4f438d26ecbdaea3f90, type: 3}
-  - {fileID: 8300000, guid: f6e3e2e8fc76b3c4081a0059f3e66a50, type: 3}
-  - {fileID: 8300000, guid: 9a078cdbf71b3fa498d22e92467c00fc, type: 3}
-  - {fileID: 8300000, guid: 814f982b9a48b0e4992d19e69e1e7356, type: 3}
-  - {fileID: 8300000, guid: 203925a087867b741aa9109b500ba2ae, type: 3}
-  - {fileID: 8300000, guid: eee237dc4db21c04f949b8075c691b2f, type: 3}
-  - {fileID: 8300000, guid: 335119b260175814896c3e3cf1195562, type: 3}
-  - {fileID: 8300000, guid: ba350db2ed7c3a1458ad6f2152e4d09d, type: 3}
-  - {fileID: 8300000, guid: eb2da2bb6a1ac47449a2cf855490b752, type: 3}
-  - {fileID: 8300000, guid: fc445aae1d57b5243a6e0371decf4ad8, type: 3}
-  - {fileID: 8300000, guid: ae71ea741fc45154e99dcceffd9aa837, type: 3}
-  - {fileID: 8300000, guid: 1298b7e2715862948b4e0275c8b175de, type: 3}
+  - {fileID: 8300000, guid: d1cd5432532b6fe46978b7d33244ace2, type: 3}
+  - {fileID: 8300000, guid: 8d092f440f72a9c4694982320f9c2bd9, type: 3}
+  - {fileID: 8300000, guid: c23674a57bacdf542bdae151ec2700c5, type: 3}
+  - {fileID: 8300000, guid: 651258ba20b9ccd4b94adce8537f4036, type: 3}
+  - {fileID: 8300000, guid: de1ffd962e8167a4097ef9ada5195921, type: 3}
 --- !u!4 &658001735
 Transform:
   m_ObjectHideFlags: 0
