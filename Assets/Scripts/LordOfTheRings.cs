@@ -89,7 +89,7 @@ public class LordOfTheRings : MonoBehaviour
                 Note note = ring.placedNotes[key];
 
                 ringNoteIDs.Add(key);
-                ringNoteLevels.Add(note.startTime); // level and startTime are interchangeable, which can be confusing but it's really convenient when playing the AudioClip
+                ringNoteLevels.Add(note.key); // key and startTime are interchangeable, which can be confusing but it's really convenient when playing the AudioClip
                 ringNoteInstruments.Add(note.instrumentName);
 
                 xPosses.Add(note.transform.localPosition.x);

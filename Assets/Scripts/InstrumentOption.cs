@@ -11,7 +11,13 @@ public class InstrumentOption : MonoBehaviour, IPointerClickHandler
     public UnityEvent leftClick;
     public UnityEvent middleClick;
     public UnityEvent rightClick;
-    
+
+    public string instrumentName;
+    public AudioClip audioClip;
+    public float key; // when in the audio file to start playing
+    public Text keyLabel;
+    public Text noteLabel;
+
     public void OnPointerClick(PointerEventData eventData)
     {        
         if (eventData.button == PointerEventData.InputButton.Left)
@@ -51,35 +57,29 @@ public class InstrumentOption : MonoBehaviour, IPointerClickHandler
     
     public void IncrementNote()
     {
-        noteLevel += 4f;
+        key += AllInstruments.noteLengths[instrumentName];
         float clipLength = audioClip.length;
 
-        if (noteLevel >= clipLength)
+        if (key >= clipLength)
         {
-            noteLevel = clipLength - noteLevel;
+            key = key - clipLength;
         }
     }
 
     public void DecrementNote()
     {
-        noteLevel -= 4f;
+        key -= AllInstruments.noteLengths[instrumentName];
         float clipLength = audioClip.length;
 
-        if (noteLevel < 0f)
+        if (key < 0f)
         {
-            noteLevel = clipLength + noteLevel;
+            key = clipLength + key; // because key will be negative (see comment in Note)
         }
     }
 
-    public string instrumentName;
-    public AudioClip audioClip;
-    public float noteLevel; // also when in the audio file to start playing
-    public Text noteLevelLabel;
-    public Text noteLabel;
-
     public void ClickedOn()
     {
-        noteLevelLabel.text = ((int)(noteLevel/2f)).ToString();
+        keyLabel.text = ((int)(key/ AllInstruments.noteLengths[instrumentName])).ToString();
         transform.parent.GetComponentInParent<InstrumentPalette>().OptionClicked(this);
     }
 }

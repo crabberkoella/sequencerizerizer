@@ -1097,11 +1097,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   allStupidAudioClips:
-  - {fileID: 8300000, guid: d1cd5432532b6fe46978b7d33244ace2, type: 3}
-  - {fileID: 8300000, guid: 8d092f440f72a9c4694982320f9c2bd9, type: 3}
-  - {fileID: 8300000, guid: c23674a57bacdf542bdae151ec2700c5, type: 3}
-  - {fileID: 8300000, guid: 651258ba20b9ccd4b94adce8537f4036, type: 3}
-  - {fileID: 8300000, guid: de1ffd962e8167a4097ef9ada5195921, type: 3}
+  - {fileID: 8300000, guid: 619d7657c0722b646b465d98a54b165e, type: 3}
 --- !u!4 &658001735
 Transform:
   m_ObjectHideFlags: 0
@@ -2151,7 +2147,7 @@ MonoBehaviour:
   activeInstrumentLabel: {fileID: 1495819049}
   activeInstrumentClip: {fileID: 0}
   activeInstrumentOption: {fileID: 0}
-  holder: {fileID: 0}
+  holder: {fileID: 1427931033}
 --- !u!82 &2002036588
 AudioSource:
   m_ObjectHideFlags: 0

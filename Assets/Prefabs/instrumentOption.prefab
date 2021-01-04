@@ -144,8 +144,8 @@ MonoBehaviour:
       m_Calls: []
   instrumentName: 
   audioClip: {fileID: 0}
-  noteLevel: 0
-  noteLevelLabel: {fileID: 2357672298216070552}
+  key: 0
+  keyLabel: {fileID: 2357672298216070552}
   noteLabel: {fileID: 1914662708189543980}
 --- !u!1001 &1638972828978025515
 PrefabInstance:
@@ -439,7 +439,7 @@ PrefabInstance:
     - target: {fileID: 877342710700419593, guid: 5f9faeeab6b870144922bb7c8a95ebf3,
         type: 3}
       propertyPath: m_Name
-      value: instrumentLevelLabel
+      value: instrumentKeyLabel
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 5f9faeeab6b870144922bb7c8a95ebf3, type: 3}

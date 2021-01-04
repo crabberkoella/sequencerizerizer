@@ -38,7 +38,7 @@ public class Ring : MonoBehaviour
         Note newNote = Instantiate(notePrefab, transform, true);
         newNote.transform.position = position;
 
-        newNote.NoteStupidConstructor(this, key, instrumentOption.noteLevel, instrumentOption.instrumentName);
+        newNote.NoteStupidConstructor(this, key, instrumentOption.key, instrumentOption.instrumentName);
 
         placedNotes[key] = newNote;
     }

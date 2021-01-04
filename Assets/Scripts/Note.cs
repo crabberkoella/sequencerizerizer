@@ -6,12 +6,14 @@ public class Note : MonoBehaviour
 {
 
     public Ring ownerRing;
-    public int noteID;
+    public int noteID; // where it lands in the Ring
     public string instrumentName;
 
     public AudioClip audioClip;
-    public float startTime = 10f;
+    public float key = 10f;
     public float clipLength;
+
+    float noteLength; // just for convenience, to not have to type AllInstruments.noteLengths all the time
 
     public AudioSource audioSource;
 
@@ -21,15 +23,16 @@ public class Note : MonoBehaviour
     {
         ownerRing = ring;
         noteID = id;
-        startTime = start;
+        key = start; // everything is set up for the key to be where in the sound file the note is played
         instrumentName = instrument;
+        noteLength = AllInstruments.noteLengths[instrumentName];
 
         audioClip = AllInstruments.instruments[instrument];
 
         clipLength = audioClip.length;
 
         audioSource = GetComponent<AudioSource>();
-        audioSource.time = start;
+        audioSource.time = key;
         audioSource.clip = audioClip;
 
         PlayNote(false, true);
@@ -38,7 +41,6 @@ public class Note : MonoBehaviour
     void Start()
     {
         audioSource = GetComponent<AudioSource>();
-        audioSource.time = startTime;
 
         GetComponent<MeshRenderer>().material.SetColor("_Color", AllInstruments.instrumentColors[instrumentName]);
 
@@ -55,7 +57,6 @@ public class Note : MonoBehaviour
         StartCoroutine(PlayNote_(offset, immediate));
     }
 
-    float playTime = 3.9f;
     IEnumerator PlayNote_(bool offset, bool immediate)
     {
         if(!TimeKeeper.mute || immediate)
@@ -65,6 +66,7 @@ public class Note : MonoBehaviour
         }
 
         yield return new WaitForSeconds((immediate ? 0f : 2f));
+        float playTime = noteLength - 0.05f; // to avoid the very last frame of the sound file, in case it plays the start of the next key (probably should find a better solution eventually)
         float playTimer = playTime;
         while (playTimer > 0f)
         {
@@ -79,8 +81,6 @@ public class Note : MonoBehaviour
         }
 
         GetComponent<MeshRenderer>().material.SetColor("_Brightness", new Color(lowestBrightness, lowestBrightness, lowestBrightness, 1f));
-        //audioSource.Stop();
-
     }
 
     public void DeleteNote()
@@ -93,38 +93,38 @@ public class Note : MonoBehaviour
     {
         if(Input.GetKey(KeyCode.RightShift))
         {
-            startTime += 16f;
+            key += noteLength * 4f;
         }
         else
         {
-            startTime += 4f;
+            key += noteLength;
         }
         
 
-        if(startTime >= clipLength)
+        if(key >= clipLength)
         {
-            startTime = clipLength - startTime;
+            key = key - clipLength;
         }
 
-        audioSource.time = startTime;
+        audioSource.time = key;
     }
     public void DecrementNote()
     {
         if (Input.GetKey(KeyCode.RightShift))
         {
-            startTime -= 16f;
+            key -= noteLength * 4f;
         }
         else
         {
-            startTime -= 4f;
+            key -= noteLength;
         }
             
 
-        if (startTime < 0f)
+        if (key < 0f)
         {
-            startTime = clipLength + startTime;
+            key = clipLength + key; // because key will be negative, so it'll put it towards the end of the clip
         }
 
-        audioSource.time = startTime;
+        audioSource.time = key;
     }
 }
