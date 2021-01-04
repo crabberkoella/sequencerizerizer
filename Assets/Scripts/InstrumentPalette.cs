@@ -47,7 +47,7 @@ public class InstrumentPalette : MonoBehaviour
     {
 
         activeInstrument = instrument.instrumentName;
-        int note = Mathf.FloorToInt(instrument.noteLevel / 2f) + AllInstruments.instrumentStartingNotes[instrument.instrumentName];
+        int note = Mathf.FloorToInt(instrument.noteLevel / 4f) + AllInstruments.instrumentStartingNotes[instrument.instrumentName];
         note = note % 12;
 
         activeInstrumentLabel.text = instrument.instrumentName + " " + AllInstruments.instrumentNoteIDToName[note];
@@ -67,7 +67,7 @@ public class InstrumentPalette : MonoBehaviour
     {
         audioSource.Play();
         
-        yield return new WaitForSeconds(1.95f);
+        yield return new WaitForSeconds(3.95f);
 
         audioSource.Stop();
     }
@@ -102,7 +102,7 @@ public class InstrumentPalette : MonoBehaviour
             // properties; should probably move all this to its Start() <-- TO DO
             InstrumentOption newInstrumentOption = instrumentOptionPrefabClone.GetComponent<InstrumentOption>();
             newInstrumentOption.noteLevel = AllInstruments.instrumentPaletteLevels[audioClip.name];
-            newInstrumentOption.noteLevelLabel.text = ((int)(AllInstruments.instrumentPaletteLevels[audioClip.name] / 2f)).ToString();
+            newInstrumentOption.noteLevelLabel.text = ((int)(AllInstruments.instrumentPaletteLevels[audioClip.name] / 4f)).ToString();
             newInstrumentOption.noteLabel.text = audioClip.name;
             newInstrumentOption.instrumentName = audioClip.name;
             newInstrumentOption.audioClip = audioClip;

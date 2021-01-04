@@ -51,7 +51,7 @@ public class InstrumentOption : MonoBehaviour, IPointerClickHandler
     
     public void IncrementNote()
     {
-        noteLevel += 2f;
+        noteLevel += 4f;
         float clipLength = audioClip.length;
 
         if (noteLevel >= clipLength)
@@ -62,7 +62,7 @@ public class InstrumentOption : MonoBehaviour, IPointerClickHandler
 
     public void DecrementNote()
     {
-        noteLevel -= 2f;
+        noteLevel -= 4f;
         float clipLength = audioClip.length;
 
         if (noteLevel < 0f)
