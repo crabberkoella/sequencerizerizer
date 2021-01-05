@@ -14,9 +14,17 @@ public class InstrumentOption : MonoBehaviour, IPointerClickHandler
 
     public string instrumentName;
     public AudioClip audioClip;
-    public float key; // when in the audio file to start playing
+
     public Text keyLabel;
     public Text noteLabel;
+
+    public int key;
+
+    public int highestKey; // for convenience; we use it to know when we should go back to the beginning if we increment the note past this
+    // start is G
+
+    public float audioClipStartTime;
+    public float pitchShiftAmount;
 
     public void OnPointerClick(PointerEventData eventData)
     {        
@@ -54,32 +62,58 @@ public class InstrumentOption : MonoBehaviour, IPointerClickHandler
 
         ClickedOn();
     }
-    
+
     public void IncrementNote()
     {
-        key += AllInstruments.noteLengths[instrumentName];
-        float clipLength = audioClip.length;
-
-        if (key >= clipLength)
+        if (Input.GetKey(KeyCode.RightShift))
         {
-            key = key - clipLength;
+            key += 4;
         }
-    }
+        else
+        {
+            key += 1;
+        }
 
+
+        if (key >= highestKey)
+        {
+            key = key - highestKey;
+        }
+
+        CalculateClipStartTimeAndPitchShift();
+    }
     public void DecrementNote()
     {
-        key -= AllInstruments.noteLengths[instrumentName];
-        float clipLength = audioClip.length;
+        if (Input.GetKey(KeyCode.RightShift))
+        {
+            key -= 4;
+        }
+        else
+        {
+            key -= 1;
+        }
+
 
         if (key < 0f)
         {
-            key = clipLength + key; // because key will be negative (see comment in Note)
+            key = highestKey + key; // because key will be negative, so it'll put it towards the end of the range
         }
+
+        CalculateClipStartTimeAndPitchShift();
+    }
+
+    public void CalculateClipStartTimeAndPitchShift() // specific enough?
+    {
+        int octave = key / 12;
+
+        audioClipStartTime = (float)octave * AllInstruments.noteLengths[instrumentName];
+
+        pitchShiftAmount = (float)(key % 12) - 5f;
     }
 
     public void ClickedOn()
     {
-        keyLabel.text = ((int)(key/ AllInstruments.noteLengths[instrumentName])).ToString();
+        keyLabel.text = (key).ToString();
         transform.parent.GetComponentInParent<InstrumentPalette>().OptionClicked(this);
     }
 }

@@ -20,6 +20,8 @@ public class InstrumentPalette : MonoBehaviour
     float instrumentOptionMargin = 10;
     int numberOfOptionsPerColumn;
 
+    float pitchShiftAmount;
+
     int maxRows = 6;
     //int maxColumns = 2;
 
@@ -47,16 +49,19 @@ public class InstrumentPalette : MonoBehaviour
     {
 
         activeInstrument = instrument.instrumentName;
-        int note = Mathf.FloorToInt(instrument.key / AllInstruments.noteLengths[activeInstrument]) + AllInstruments.instrumentStartingNotes[instrument.instrumentName];
-        note = note % 12;
+        int note = (instrument.key - 6) % 12;
 
         activeInstrumentLabel.text = instrument.instrumentName + " " + AllInstruments.instrumentNoteIDToName[note];
 
         audioSource.clip = instrument.audioClip;
-        audioSource.time = instrument.key;
+        audioSource.time = instrument.audioClipStartTime;
+
+        pitchShiftAmount = instrument.pitchShiftAmount; // we also need pitchShiftAmount to decide how long we play the file
+        audioSource.pitch = Mathf.Pow(1.05946f, pitchShiftAmount);        
 
         activeInstrumentOption = instrument;
         activeInstrumentClip = instrument.audioClip;
+
 
         StopAllCoroutines();
         audioSource.Stop();
@@ -66,8 +71,12 @@ public class InstrumentPalette : MonoBehaviour
     IEnumerator PlayNote_()
     {
         audioSource.Play();
-        
-        yield return new WaitForSeconds(3.95f);
+
+        float noteLength = AllInstruments.noteLengths[activeInstrument];
+
+        float endTime = noteLength - (noteLength * .079f * pitchShiftAmount);
+
+        yield return new WaitForSeconds(endTime);
 
         audioSource.Stop();
     }
@@ -102,10 +111,15 @@ public class InstrumentPalette : MonoBehaviour
             // properties; should probably move all this to its Start() <-- TO DO
             InstrumentOption newInstrumentOption = instrumentOptionPrefabClone.GetComponent<InstrumentOption>();
             newInstrumentOption.key = AllInstruments.instrumentStartingNotes[audioClip.name];
-            newInstrumentOption.keyLabel.text = ((int)(newInstrumentOption.key / AllInstruments.noteLengths[audioClip.name])).ToString();
+            //newInstrumentOption.keyLabel.text = ((int)(newInstrumentOption.key / AllInstruments.noteLengths[audioClip.name])).ToString();
             newInstrumentOption.noteLabel.text = audioClip.name;
             newInstrumentOption.instrumentName = audioClip.name;
             newInstrumentOption.audioClip = audioClip;
+
+            newInstrumentOption.highestKey = (AllInstruments.numberOfOctaves[audioClip.name] * 12) - 1;
+            newInstrumentOption.CalculateClipStartTimeAndPitchShift();
+
+            newInstrumentOption.keyLabel.text = (newInstrumentOption.key).ToString();
 
             tmpcounter++;
         }

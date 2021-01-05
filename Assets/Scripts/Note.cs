@@ -10,8 +10,14 @@ public class Note : MonoBehaviour
     public string instrumentName;
 
     public AudioClip audioClip;
-    public float key = 10f;
-    public float clipLength;
+    public int key;
+    int numberOfOctaves;
+
+    int highestKey; // for convenience; we use it to know when we should go back to the beginning if we increment the note past this
+    // start is G
+
+    float audioClipStartTime;
+    float pitchShiftAmount;
 
     float noteLength; // just for convenience, to not have to type AllInstruments.noteLengths all the time
 
@@ -19,21 +25,27 @@ public class Note : MonoBehaviour
 
     float lowestBrightness = 0.2f;
 
-    public void NoteStupidConstructor(Ring ring, int id, float start, string instrument)
+    public Color outColor = new Color();
+    public float loudness = 0;
+
+    public void NoteStupidConstructor(Ring ring, int keyIn, int id, string instrument)
     {
         ownerRing = ring;
         noteID = id;
-        key = start; // everything is set up for the key to be where in the sound file the note is played
+        key = keyIn; // everything is set up for the key to be where in the sound file the note is played
         instrumentName = instrument;
         noteLength = AllInstruments.noteLengths[instrumentName];
 
         audioClip = AllInstruments.instruments[instrument];
 
-        clipLength = audioClip.length;
+        numberOfOctaves = AllInstruments.numberOfOctaves[instrument];
+        highestKey = (numberOfOctaves * 12) - 1; // - 1 because, of course, we start at zero
 
         audioSource = GetComponent<AudioSource>();
-        audioSource.time = key;
         audioSource.clip = audioClip;
+
+        CalculateClipStartTimeAndPitchShift();
+        outColor = AllInstruments.instrumentColors[instrumentName];
 
         PlayNote(false, true);
     }
@@ -61,26 +73,51 @@ public class Note : MonoBehaviour
     {
         if(!TimeKeeper.mute || immediate)
         {
+            float endTime = noteLength - (noteLength * .079f * pitchShiftAmount);
+
             audioSource.PlayScheduled(AudioSettings.dspTime + (immediate ? 0f : 2.0f) + (offset ? 0.125f : 0f));
-            audioSource.SetScheduledEndTime(AudioSettings.dspTime + 3.9f + (immediate ? 0f : 2.0f) + (offset ? 0.125f : 0f));
+            audioSource.SetScheduledEndTime(AudioSettings.dspTime + endTime + (immediate ? 0f : 2.0f) + (offset ? 0.125f : 0f));
+
         }
 
         yield return new WaitForSeconds((immediate ? 0f : 2f));
-        float playTime = noteLength - 0.05f; // to avoid the very last frame of the sound file, in case it plays the start of the next key (probably should find a better solution eventually)
+
+        if (!TimeKeeper.mute && !immediate)
+        {
+            loudness = 0f;
+            SoundToColorControl.playingNotes.Add(this);
+        }
+
+        float playTime = noteLength - 0.1f; // to avoid the very last frame of the sound file, in case it plays the start of the next key (probably should find a better solution eventually)
         float playTimer = playTime;
         while (playTimer > 0f)
         {
             float progress = playTimer / playTime;
+
+            if(!immediate)
+            {
+                if (progress <= 0.5f)
+                {
+                    loudness = progress / 5f;
+                }
+                else
+                {
+                    loudness = (1.0f - progress) / 5f;
+                }
+            }
+            
+            
             float b = lowestBrightness + (progress * (1f - lowestBrightness));
             GetComponent<MeshRenderer>().material.SetColor("_Brightness", new Color(b, b, b, 1f));
 
             playTimer -= Time.deltaTime;
-
             yield return new WaitForEndOfFrame();
 
         }
 
         GetComponent<MeshRenderer>().material.SetColor("_Brightness", new Color(lowestBrightness, lowestBrightness, lowestBrightness, 1f));
+        SoundToColorControl.playingNotes.Remove(this);
+        loudness = 0f;
     }
 
     public void DeleteNote()
@@ -93,38 +130,52 @@ public class Note : MonoBehaviour
     {
         if(Input.GetKey(KeyCode.RightShift))
         {
-            key += noteLength * 4f;
+            key += 4;
         }
         else
         {
-            key += noteLength;
+            key += 1;
         }
         
 
-        if(key >= clipLength)
+        if(key >= highestKey)
         {
-            key = key - clipLength;
+            key = key - highestKey;
         }
 
-        audioSource.time = key;
+        CalculateClipStartTimeAndPitchShift();
     }
     public void DecrementNote()
     {
         if (Input.GetKey(KeyCode.RightShift))
         {
-            key -= noteLength * 4f;
+            key -= 4;
         }
         else
         {
-            key -= noteLength;
+            key -= 1;
         }
             
 
         if (key < 0f)
         {
-            key = clipLength + key; // because key will be negative, so it'll put it towards the end of the clip
+            key = highestKey + key; // because key will be negative, so it'll put it towards the end of the range
         }
 
-        audioSource.time = key;
+        CalculateClipStartTimeAndPitchShift();
     }
+
+    void CalculateClipStartTimeAndPitchShift() // specific enough?
+    {
+        int octave = key / 12;
+
+        audioClipStartTime = (float)octave * AllInstruments.noteLengths[instrumentName];
+
+        pitchShiftAmount = (float)(key % 12) - 5f;
+
+        audioSource.time = audioClipStartTime;
+        audioSource.pitch = Mathf.Pow(1.05946f, pitchShiftAmount);
+    }
+
+
 }

@@ -14,7 +14,6 @@ public class AllInstruments : MonoBehaviour
     {
         foreach(AudioClip audioClip in allStupidAudioClips) // temporarily set the intrument group here (depending on which list we use)
         {
-            Debug.Log(audioClip.name);
             instruments[audioClip.name] = audioClip;
         }
 
@@ -22,19 +21,46 @@ public class AllInstruments : MonoBehaviour
 
     public static Dictionary<string, Color> instrumentColors = new Dictionary<string, Color>()
     {
-        {"BoxySynthBass", new Color (1f, 1f, 1f) },
+        {"PlasticKeys", new Color (1f, 0f, 0f) },
+        {"80sSineSynth", new Color (0f, 0f, 1f) },
+        {"DangerBass", new Color (.5f, .25f, .33f) },
+        {"ClassicFunkBoogieBass", new Color (.75f, .5f, 0f) },
+        {"StudioStomps", new Color (.25f, .5f, 1f) },
+        {"ElectronicCowbell", new Color (.8f, 8f, .4f) },
+        {"PawnShopClaps", new Color (.5f, .8f, .0f) }
     };
 
     // how long a note is for a given instrument
     public static Dictionary<string, float> noteLengths = new Dictionary<string, float>()
     {
-        {"BoxySynthBass", 4f }
+        {"PlasticKeys", 1f },
+        {"80sSineSynth", 1f },
+        {"ClassicFunkBoogieBass", 2f },
+        {"StudioStomps", 1f },
+        {"ElectronicCowbell", 1f },
+        {"PawnShopClaps", 1f }
     };
 
-    // this is useful to hone in the starting noteLevel, since some have a pretty wide range but the lower extreme is too low to be said 'default'
+    // we could calculate it at runtime, but this'll make things much cleaner if we just manually record it, here
+    public static Dictionary<string, int> numberOfOctaves = new Dictionary<string, int>()
+    {
+        {"PlasticKeys", 2 },
+        {"80sSineSynth", 2 },
+        {"ClassicFunkBoogieBass", 3 },
+        {"StudioStomps", 1 },
+        {"ElectronicCowbell", 1 },
+        {"PawnShopClaps", 1 }
+    };
+
+    // this is useful to hone in the starting key, since some have a pretty wide range but the lower extreme is too low to be said 'default'
     public static Dictionary<string, int> instrumentStartingNotes = new Dictionary<string, int>()
     {
-        {"BoxySynthBass", 0}
+        {"PlasticKeys", 6 },
+        {"80sSineSynth", 6 },
+        {"ClassicFunkBoogieBass", 18 },
+        {"StudioStomps", 6 },
+        {"ElectronicCowbell", 6 },
+        {"PawnShopClaps", 6 }
     };
 
     public static List<string> instrumentNoteIDToName = new List<string>() { "C", "C#" , "D", "D#", "E", "F", "F#", "G", "G#", "A", "A#", "B"};
