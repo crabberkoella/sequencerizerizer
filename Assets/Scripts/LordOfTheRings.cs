@@ -63,7 +63,7 @@ public class LordOfTheRings : MonoBehaviour
 
         // we just round up all the rings and record each note's info and a little bit about the ring (offset and rounds active)
         List<List<int>> noteIDs = new List<List<int>>();
-        List<List<float>> noteLevels = new List<List<float>>();
+        List<List<int>> noteKeys = new List<List<int>>();
         List<List<string>> noteInstruments = new List<List<string>>();
         List<bool> offsets = new List<bool>();
         List<List<int>> roundsActive = new List<List<int>>();
@@ -76,7 +76,7 @@ public class LordOfTheRings : MonoBehaviour
         {
 
             List<int> ringNoteIDs = new List<int>();
-            List<float> ringNoteLevels = new List<float>();
+            List<int> ringNoteKeys = new List<int>();
             List<string> ringNoteInstruments = new List<string>();
 
             bool ringOffset = ring.offset;
@@ -89,7 +89,7 @@ public class LordOfTheRings : MonoBehaviour
                 Note note = ring.placedNotes[key];
 
                 ringNoteIDs.Add(key);
-                ringNoteLevels.Add(note.key); // key and startTime are interchangeable, which can be confusing but it's really convenient when playing the AudioClip
+                ringNoteKeys.Add(note.key); // key and startTime are interchangeable, which can be confusing but it's really convenient when playing the AudioClip
                 ringNoteInstruments.Add(note.instrumentName);
 
                 xPosses.Add(note.transform.localPosition.x);
@@ -97,7 +97,7 @@ public class LordOfTheRings : MonoBehaviour
             }
 
             noteIDs.Add(ringNoteIDs);
-            noteLevels.Add(ringNoteLevels);
+            noteKeys.Add(ringNoteKeys);
             noteInstruments.Add(ringNoteInstruments);
             offsets.Add(ringOffset);
             roundsActive.Add(ring.roundsActive);
@@ -107,14 +107,14 @@ public class LordOfTheRings : MonoBehaviour
         }
 
         noteIDs.Reverse();
-        noteLevels.Reverse();
+        noteKeys.Reverse();
         noteInstruments.Reverse();
         offsets.Reverse();
 
         xPositions.Reverse();
         zPositions.Reverse();
 
-        GameData data = new GameData(noteIDs, noteLevels, noteInstruments, offsets, xPositions, zPositions, roundsActive);
+        GameData data = new GameData(noteIDs, noteKeys, noteInstruments, offsets, xPositions, zPositions, roundsActive);
         BinaryFormatter bf = new BinaryFormatter();
 
         bf.Serialize(file, data);
@@ -154,7 +154,7 @@ public class LordOfTheRings : MonoBehaviour
             for (int j = 0; j < data.noteIDs[i].Count; j++)
             {
                 Vector3 pos = new Vector3(data.xPositions[i][j], 0f, data.zPositions[i][j]);
-                newRing.CreateNoteFromSave(data.noteIDs[i][j], pos, data.noteLevels[i][j], data.noteInstruments[i][j]);
+                newRing.CreateNoteFromSave(data.noteIDs[i][j], pos, data.noteKeys[i][j], data.noteInstruments[i][j]);
             }
 
             if (data.offsets[i])
@@ -176,15 +176,15 @@ public class GameData
     public List<List<int>> noteIDs;
     public List<List<float>> xPositions;
     public List<List<float>> zPositions;
-    public List<List<float>> noteLevels;
+    public List<List<int>> noteKeys;
     public List<List<string>> noteInstruments;
     public List<bool> offsets;
     public List<List<int>> roundsActive;
 
-    public GameData(List<List<int>> noteIDs_, List<List<float>> noteLevels_, List<List<string>> noteInstruments_, List<bool> offsets_, List<List<float>> xPositions_, List<List<float>> zPositions_, List<List<int>> roundsActive_)
+    public GameData(List<List<int>> noteIDs_, List<List<int>> noteKeys_, List<List<string>> noteInstruments_, List<bool> offsets_, List<List<float>> xPositions_, List<List<float>> zPositions_, List<List<int>> roundsActive_)
     {
         noteIDs = noteIDs_;
-        noteLevels = noteLevels_;
+        noteKeys = noteKeys_;
         noteInstruments = noteInstruments_;
         offsets = offsets_;
         roundsActive = roundsActive_;

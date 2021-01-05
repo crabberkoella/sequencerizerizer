@@ -33,22 +33,21 @@ public class Ring : MonoBehaviour
 
     public void CreateNote(int noteID, Vector3 position, InstrumentOption instrumentOption)
     {
-        int key = noteID;
 
         Note newNote = Instantiate(notePrefab, transform, true);
         newNote.transform.position = position;
 
-        newNote.NoteStupidConstructor(this, key, instrumentOption.key, instrumentOption.instrumentName);
+        newNote.NoteStupidConstructor(this, instrumentOption.key, noteID, instrumentOption.instrumentName);
 
-        placedNotes[key] = newNote;
+        placedNotes[noteID] = newNote;
     }
 
-    public void CreateNoteFromSave(int noteID, Vector3 localRingPos, float noteLevel, string instrumentName)
+    public void CreateNoteFromSave(int noteID, Vector3 localRingPos, int noteKey, string instrumentName)
     {
         Note newNote = Instantiate(notePrefab, transform, true);
         newNote.transform.localPosition = localRingPos;
 
-        newNote.NoteStupidConstructor(this, noteID, noteLevel, instrumentName);
+        newNote.NoteStupidConstructor(this, noteKey, noteID, instrumentName);
 
         placedNotes[noteID] = newNote;
     }

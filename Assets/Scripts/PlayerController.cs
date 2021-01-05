@@ -23,6 +23,7 @@ public class PlayerController : MonoBehaviour
 
     void Start()
     {
+
         cam = transform.GetChild(0);
         Cursor.visible = false;
         Cursor.lockState = CursorLockMode.Locked;

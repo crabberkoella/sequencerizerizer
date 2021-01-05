@@ -1097,7 +1097,12 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   allStupidAudioClips:
-  - {fileID: 8300000, guid: 619d7657c0722b646b465d98a54b165e, type: 3}
+  - {fileID: 8300000, guid: cef0f444961c83a40971cf1337a0a792, type: 3}
+  - {fileID: 8300000, guid: 4ca145b0b47e28447a71f7741a7190d8, type: 3}
+  - {fileID: 8300000, guid: c37f0273b3bbc3543bf3af9af7b31860, type: 3}
+  - {fileID: 8300000, guid: ed0463e5895a9a94bb450fcad507d3d9, type: 3}
+  - {fileID: 8300000, guid: d21fb21591f12d34497b3db580f318cd, type: 3}
+  - {fileID: 8300000, guid: 849fa3ef593a1cd4cb8f650a57ce5aa1, type: 3}
 --- !u!4 &658001735
 Transform:
   m_ObjectHideFlags: 0
@@ -2012,6 +2017,50 @@ Transform:
     type: 3}
   m_PrefabInstance: {fileID: 1651399941}
   m_PrefabAsset: {fileID: 0}
+--- !u!1 &1735666062
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1735666064}
+  - component: {fileID: 1735666063}
+  m_Layer: 0
+  m_Name: SoundToColorControl
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &1735666063
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1735666062}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8d48eacc960db4f4e8ea5eeffdcd6e81, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  floor: {fileID: 1496373275}
+--- !u!4 &1735666064
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1735666062}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_RootOrder: 11
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1998352446
 GameObject:
   m_ObjectHideFlags: 0
