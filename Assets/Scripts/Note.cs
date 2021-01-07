@@ -73,7 +73,7 @@ public class Note : MonoBehaviour
     {
         if(!TimeKeeper.mute || immediate)
         {
-            float endTime = noteLength - (noteLength * .079f * pitchShiftAmount);
+            float endTime = noteLength - (noteLength * .07f * (pitchShiftAmount > 0 ? pitchShiftAmount : 1f));
 
             audioSource.PlayScheduled(AudioSettings.dspTime + (immediate ? 0f : 2.0f) + (offset ? 0.125f : 0f));
             audioSource.SetScheduledEndTime(AudioSettings.dspTime + endTime + (immediate ? 0f : 2.0f) + (offset ? 0.125f : 0f));
@@ -128,7 +128,7 @@ public class Note : MonoBehaviour
 
     public void IncrementNote()
     {
-        if(Input.GetKey(KeyCode.RightShift))
+        if(Input.GetKey(KeyCode.LeftShift))
         {
             key += 4;
         }
@@ -147,7 +147,7 @@ public class Note : MonoBehaviour
     }
     public void DecrementNote()
     {
-        if (Input.GetKey(KeyCode.RightShift))
+        if (Input.GetKey(KeyCode.LeftShift))
         {
             key -= 4;
         }

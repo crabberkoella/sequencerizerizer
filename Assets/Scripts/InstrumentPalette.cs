@@ -13,6 +13,7 @@ public class InstrumentPalette : MonoBehaviour
     public Text activeInstrumentLabel;
     public AudioClip activeInstrumentClip;
     public InstrumentOption activeInstrumentOption;
+    public GameObject helpButton;
 
     // for displaying the options
     Vector2 instrumentOptionStartPos; // where in the screen we put the first option
@@ -28,11 +29,11 @@ public class InstrumentPalette : MonoBehaviour
     AudioSource audioSource;
 
     public RectTransform holder;
+    public GameObject helpPanel;
 
     void Start()
     {
         audioSource = GetComponent<AudioSource>();
-        holder = GetComponent<RectTransform>().GetChild(0).GetComponent<RectTransform>();
 
         CalculateScreenDetails();
 
@@ -49,7 +50,7 @@ public class InstrumentPalette : MonoBehaviour
     {
 
         activeInstrument = instrument.instrumentName;
-        int note = (instrument.key - 6) % 12;
+        int note = instrument.key % 12;
 
         activeInstrumentLabel.text = instrument.instrumentName + " " + AllInstruments.instrumentNoteIDToName[note];
 
@@ -74,7 +75,7 @@ public class InstrumentPalette : MonoBehaviour
 
         float noteLength = AllInstruments.noteLengths[activeInstrument];
 
-        float endTime = noteLength - (noteLength * .079f * pitchShiftAmount);
+        float endTime = noteLength - (noteLength * .07f * (pitchShiftAmount > 0 ? pitchShiftAmount : 1f)); // TODO this is confusing and I need to document it at some point
 
         yield return new WaitForSeconds(endTime);
 
@@ -124,7 +125,8 @@ public class InstrumentPalette : MonoBehaviour
             tmpcounter++;
         }
 
-        holder.gameObject.SetActive(false);
+        //holder.gameObject.SetActive(false);
+
     }
 
     void CalculateScreenDetails() // TO DO --> make something for multiple 'screens' of options, like a parent gameobject per screen
@@ -138,6 +140,15 @@ public class InstrumentPalette : MonoBehaviour
         numberOfOptionsPerColumn = Mathf.FloorToInt(numberOfOptionsPerColumn_);
 
         instrumentOptionStartPos = new Vector2(100f, height - 100f);
+
+    }
+
+    public void ToggleHelp()
+    {
+        bool helpVisible = helpPanel.activeSelf;
+
+        helpPanel.SetActive(!helpVisible);
+        holder.gameObject.SetActive(helpVisible);
 
     }
 }
