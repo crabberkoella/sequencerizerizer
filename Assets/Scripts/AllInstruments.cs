@@ -63,5 +63,5 @@ public class AllInstruments : MonoBehaviour
         {"PawnShopClaps", 6 }
     };
 
-    public static List<string> instrumentNoteIDToName = new List<string>() { "C", "C#" , "D", "D#", "E", "F", "F#", "G", "G#", "A", "A#", "B"};
+    public static List<string> instrumentNoteIDToName = new List<string>() { "G", "G#", "A", "A#", "B", "C", "C#", "D", "D#", "E", "F", "F#" };
 }

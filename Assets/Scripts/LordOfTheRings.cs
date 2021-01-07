@@ -9,6 +9,7 @@ public class LordOfTheRings : MonoBehaviour
     // saving and loading rings
 
     public PlayerController playerController;
+    public TimeKeeper timeKeeper; // I think this is awful
 
     private void Update()
     {
@@ -110,6 +111,7 @@ public class LordOfTheRings : MonoBehaviour
         noteKeys.Reverse();
         noteInstruments.Reverse();
         offsets.Reverse();
+        roundsActive.Reverse();
 
         xPositions.Reverse();
         zPositions.Reverse();
@@ -146,6 +148,8 @@ public class LordOfTheRings : MonoBehaviour
 
         playerController.LoadNew();
 
+        int highestRound = 0;
+
         for (int i = 0; i < data.noteIDs.Count; i++)
         {
 
@@ -163,10 +167,16 @@ public class LordOfTheRings : MonoBehaviour
             }
 
             newRing.roundsActive = data.roundsActive[i];
-
+            foreach(int r in data.roundsActive[i])
+            {
+                if (r > highestRound)
+                {
+                    highestRound = r;
+                }
+            }
         }
 
-
+        timeKeeper.SetRounds(highestRound + 1);
     }
 }
 

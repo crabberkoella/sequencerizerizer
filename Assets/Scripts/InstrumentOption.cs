@@ -65,7 +65,7 @@ public class InstrumentOption : MonoBehaviour, IPointerClickHandler
 
     public void IncrementNote()
     {
-        if (Input.GetKey(KeyCode.RightShift))
+        if (Input.GetKey(KeyCode.LeftShift))
         {
             key += 4;
         }
@@ -84,7 +84,7 @@ public class InstrumentOption : MonoBehaviour, IPointerClickHandler
     }
     public void DecrementNote()
     {
-        if (Input.GetKey(KeyCode.RightShift))
+        if (Input.GetKey(KeyCode.LeftShift))
         {
             key -= 4;
         }

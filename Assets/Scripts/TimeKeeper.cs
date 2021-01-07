@@ -11,7 +11,7 @@ public class TimeKeeper : MonoBehaviour
     public static int beatCounter = 0; // may not need to be static in the end--may not even need beatCounter at all
     public static int roundCounter = 0;
     public static int notePlayed; // basically changing sixteenthCounter and beatCounter to a 0 - 63 number
-    int numberOfRounds = 1;
+    public int numberOfRounds = 1;
 
     double lastSixteenthTime;
     
@@ -99,25 +99,20 @@ public class TimeKeeper : MonoBehaviour
                 Cursor.lockState = CursorLockMode.Locked;
 
                 activeRoundSelector.gameObject.SetActive(false);
+
+                playerController.paused = false;
             }
         }
 
-        if(Input.GetKeyUp(KeyCode.KeypadPlus))
+        if(Input.GetKeyUp(KeyCode.Equals))
         {
-            numberOfRounds += 1;
-
-            GameObject newRoundElement = Instantiate(activeRoundSelector.GetChild(0).gameObject);
-            RectTransform newRoundRect = newRoundElement.GetComponent<RectTransform>();
-
-            newRoundRect.SetParent(activeRoundSelector);
-            newRoundRect.SetAsLastSibling();
-
-            newRoundRect.position = activeRoundSelector.GetChild(activeRoundSelector.childCount - 2).GetComponent<RectTransform>().position;
-            newRoundRect.position += new Vector3(138f, 0f, 0f);
+            CreateRound();
         }
+        
 
         if (Input.GetKeyUp(KeyCode.BackQuote))
         {
+            playerController.paused = true;
 
             RaycastHit hit = new RaycastHit();
             if (Physics.Raycast(Camera.main.transform.position, Camera.main.transform.forward, out hit, Mathf.Infinity, 1 << 10))
@@ -147,6 +142,35 @@ public class TimeKeeper : MonoBehaviour
 
         }
 
+    }
+
+    void CreateRound()
+    {
+        numberOfRounds += 1;
+
+        GameObject newRoundElement = Instantiate(activeRoundSelector.GetChild(0).gameObject);
+        RectTransform newRoundRect = newRoundElement.GetComponent<RectTransform>();
+
+        newRoundRect.SetParent(activeRoundSelector);
+        newRoundRect.SetAsLastSibling();
+
+        newRoundRect.position = activeRoundSelector.GetChild(activeRoundSelector.childCount - 2).GetComponent<RectTransform>().position;
+        newRoundRect.position += new Vector3(138f, 0f, 0f);
+    }
+
+    public void SetRounds(int n)
+    {
+        numberOfRounds = 1;
+
+        while(activeRoundSelector.childCount > 1)
+        {
+            Destroy(activeRoundSelector.GetChild(-1).gameObject);
+        }
+
+        for(int i = 1; i < n; i++)
+        {
+            CreateRound();
+        }
     }
 
     public void RoundSelectionClicked(Transform indexClicked)
