@@ -13,6 +13,8 @@ public class PlayerController : MonoBehaviour
     public Text noteNameText;
     public Locator noteLocator;
 
+    public GameObject menu;
+
     public Ring ringPrefab;    
 
     public Ring activeRing; // public for the TimeKeeper to access when the player is setting its activeRounds
@@ -20,13 +22,15 @@ public class PlayerController : MonoBehaviour
 
     public bool paused = false;
 
+    List<Ring> rings = new List<Ring>(); // just so we can put them in the right place when one's deleted
 
     void Start()
     {
-
         cam = transform.GetChild(0);
         Cursor.visible = false;
         Cursor.lockState = CursorLockMode.Locked;
+
+        rings.Add(GameObject.FindObjectOfType<Ring>());
     }
 
     List<int> activeRoundsToAssign = new List<int>(); // for the (very temporary) way we assign rings to which rounds to play
@@ -48,7 +52,7 @@ public class PlayerController : MonoBehaviour
             paused = !paused;
             Cursor.visible = paused;
             Cursor.lockState = (paused ? CursorLockMode.None : CursorLockMode.Locked);
-            instrumentPalette.holder.gameObject.SetActive(paused);
+            menu.SetActive(paused);
         }
 
     }
@@ -81,7 +85,7 @@ public class PlayerController : MonoBehaviour
                 activeNote.PlayNote(false, true);
             }
 
-            if (Input.GetKeyUp(KeyCode.Delete))
+            if (Input.GetKeyUp(KeyCode.Delete) || Input.GetKeyUp(KeyCode.Backspace))
             {
                 activeNote.DeleteNote();
                 noteIDText.text = "";
@@ -128,7 +132,7 @@ public class PlayerController : MonoBehaviour
             // drop a note if its empty
             if (Input.GetMouseButtonUp(0))
             {
-                if(instrumentPalette.activeInstrumentOption != null)
+                if(instrumentPalette.activeInstrumentOption != null && !paused)
                 {
                     CreateNote(cellNumber, spotID, closestSpotPos, instrumentPalette.activeInstrumentOption);
                 }
@@ -144,7 +148,10 @@ public class PlayerController : MonoBehaviour
             // destroy <-- TO DO: bring every ring down that's above the one destroyed
             if(Input.GetKeyUp(KeyCode.T))
             {
+                rings.Remove(activeRing);
                 Destroy(activeRing.gameObject);
+
+                StartCoroutine(MoveRingsToPosition());
             }
 
             if(noteLocator.lastLocation != (cellNumber * 4) + spotID)
@@ -177,26 +184,61 @@ public class PlayerController : MonoBehaviour
         }
     }
 
+    IEnumerator MoveRingsToPosition()
+    {
+
+        float animTime = 2f;
+        float animTimer = 0f;
+
+        List<Vector3> startPos = new List<Vector3>();
+
+        foreach(Ring ring in rings)
+        {
+            startPos.Add(ring.transform.position);
+        }
+        int count = rings.Count;
+        while (animTimer < animTime)
+        {
+            float progress = animTimer / animTime;
+
+            for(int i = 0; i < count; i++)
+            {
+                rings[i].transform.position = Vector3.Slerp(startPos[i], new Vector3(0f, 1f + (2f * i), 0f), progress);
+            }
+
+            yield return new WaitForEndOfFrame();
+
+            animTimer += Time.deltaTime;
+        }
+
+        for (int i = 0; i < rings.Count; i++)
+        {
+            rings[i].transform.position = Vector3.Slerp(startPos[i], new Vector3(0f, 1f + (2f * i), 0f), 1f); // in case it went from ie 0.98f to 1.02f
+        }
+
+    }
+
     void CreateNote(int cellNumber, int spotID, Vector3 position, InstrumentOption instrumentOption)
     {
         int noteID = (cellNumber * 4) + (spotID);
         activeRing.CreateNote(noteID, position, instrumentOption);
     }
 
-    float numberOfRings = 1;
+
     public Ring CreateRing()
     {
         Ring newRing = Instantiate(ringPrefab);
-        newRing.transform.position = new Vector3(0f, 1f + (2f * numberOfRings), 0f);
 
-        numberOfRings += 1;
+        newRing.transform.position = new Vector3(0f, 1f + (2f * rings.Count), 0f);
+
+        rings.Add(newRing);
 
         return newRing;
     }
 
     public void LoadNew()
     {
-        numberOfRings = 0;
+        rings.Clear();
     }
 
     // probably won't even use this, in the final version; didn't take too long, though
