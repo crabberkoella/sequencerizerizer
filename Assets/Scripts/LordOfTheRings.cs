@@ -8,8 +8,8 @@ public class LordOfTheRings : MonoBehaviour
 {
     // saving and loading rings
 
-    public PlayerController playerController;
-    public TimeKeeper timeKeeper; // I think this is awful
+    public PlayerInteractionController playerController;
+    public TimeKeeper timeKeeper; // this is awful, but hard to avoid for now
 
     private void Update()
     {
@@ -80,7 +80,7 @@ public class LordOfTheRings : MonoBehaviour
             List<int> ringNoteKeys = new List<int>();
             List<string> ringNoteInstruments = new List<string>();
 
-            bool ringOffset = ring.offset;
+            bool ringOffset = ring.IsOffset();
 
             List<float> xPosses = new List<float>();
             List<float> zPosses = new List<float>();
@@ -90,8 +90,8 @@ public class LordOfTheRings : MonoBehaviour
                 Note note = ring.placedNotes[key];
 
                 ringNoteIDs.Add(key);
-                ringNoteKeys.Add(note.key); // key and startTime are interchangeable, which can be confusing but it's really convenient when playing the AudioClip
-                ringNoteInstruments.Add(note.instrumentName);
+                ringNoteKeys.Add(note.noteData.pitch); // key and startTime are interchangeable, which can be confusing but it's really convenient when playing the AudioClip
+                ringNoteInstruments.Add(note.noteData.instrumentName);
 
                 xPosses.Add(note.transform.localPosition.x);
                 zPosses.Add(note.transform.localPosition.z);
@@ -101,7 +101,7 @@ public class LordOfTheRings : MonoBehaviour
             noteKeys.Add(ringNoteKeys);
             noteInstruments.Add(ringNoteInstruments);
             offsets.Add(ringOffset);
-            roundsActive.Add(ring.roundsActive);
+            roundsActive.Add(ring.GetRoundsActive());
 
             xPositions.Add(xPosses);
             zPositions.Add(zPosses);
@@ -158,7 +158,7 @@ public class LordOfTheRings : MonoBehaviour
             for (int j = 0; j < data.noteIDs[i].Count; j++)
             {
                 Vector3 pos = new Vector3(data.xPositions[i][j], 0f, data.zPositions[i][j]);
-                newRing.CreateNoteFromSave(data.noteIDs[i][j], pos, data.noteKeys[i][j], data.noteInstruments[i][j]);
+                //newRing.CreateNoteFromSave(data.noteIDs[i][j], pos, data.noteKeys[i][j], data.noteInstruments[i][j]);
             }
 
             if (data.offsets[i])
@@ -166,7 +166,7 @@ public class LordOfTheRings : MonoBehaviour
                 newRing.ToggleOffset();
             }
 
-            newRing.roundsActive = data.roundsActive[i];
+            newRing.SetRoundsActive(data.roundsActive[i]);
             foreach(int r in data.roundsActive[i])
             {
                 if (r > highestRound)
