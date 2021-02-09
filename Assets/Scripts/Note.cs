@@ -2,60 +2,52 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class Note : MonoBehaviour
+public class Note : InteractableObject
 {
 
-    public Ring ownerRing;
-    public int noteID; // where it lands in the Ring
-    public string instrumentName;
+    public delegate void DeleteNoteDelegate(Note note);
+    public DeleteNoteDelegate deleteNoteDelegate;
 
-    public AudioClip audioClip;
-    public int key;
-    int numberOfOctaves;
+    protected AudioSource audioSource;
 
-    int highestKey; // for convenience; we use it to know when we should go back to the beginning if we increment the note past this
+    public int noteID; // where it lands in the Ring (0-15)
+                       // it's not in noteData because noteData could change but this placed note would maintain the same ID and location within a Ring
+    public NoteData noteData;
+
+    protected int highestKey; // for convenience; we use it to know when we should go back to the beginning if we increment the note past this and calculate it on note creation
     // start is G
 
-    float audioClipStartTime;
-    float pitchShiftAmount;
+    // these are here, not with NoteData, as they're specific to the audioSource
+    protected float audioClipStartTime;
+    protected float pitchShiftAmount;
 
-    float noteLength; // just for convenience, to not have to type AllInstruments.noteLengths all the time
+    // info for colors our sound affects
+    protected float lowestBrightness = 0.2f;    
+    public Color outColor = new Color(); // these two are public because the SoundToColorController
+    public float loudness = 0;           // uses them to add up the final color value of Rings et al
 
-    public AudioSource audioSource;
 
-    float lowestBrightness = 0.2f;
-
-    public Color outColor = new Color();
-    public float loudness = 0;
-
-    public void NoteStupidConstructor(Ring ring, int keyIn, int id, string instrument)
+    public void Initialize(NoteData noteDataIn, int noteIDIn)
     {
-        ownerRing = ring;
-        noteID = id;
-        key = keyIn; // everything is set up for the key to be where in the sound file the note is played
-        instrumentName = instrument;
-        noteLength = AllInstruments.noteLengths[instrumentName];
 
-        audioClip = AllInstruments.instruments[instrument];
+        noteData = noteDataIn;
+        noteID = noteIDIn;
 
-        numberOfOctaves = AllInstruments.numberOfOctaves[instrument];
-        highestKey = (numberOfOctaves * 12) - 1; // - 1 because, of course, we start at zero
+        highestKey = (AllInstruments.numberOfOctaves[noteData.instrumentName] * 12) - 1; // '- 1' because, of course, we start at zero
+
+        outColor = AllInstruments.instrumentColors[noteData.instrumentName];
 
         audioSource = GetComponent<AudioSource>();
-        audioSource.clip = audioClip;
+
+        GetComponent<MeshRenderer>().material.SetColor("_Color", AllInstruments.instrumentColors[noteData.instrumentName]);
 
         CalculateClipStartTimeAndPitchShift();
-        outColor = AllInstruments.instrumentColors[instrumentName];
 
-        PlayNote(false, true);
+        //PlayNote(false, true);
     }
 
     void Start()
     {
-        audioSource = GetComponent<AudioSource>();
-
-        GetComponent<MeshRenderer>().material.SetColor("_Color", AllInstruments.instrumentColors[instrumentName]);
-
 
     }
     
@@ -66,45 +58,43 @@ public class Note : MonoBehaviour
 
     public void PlayNote(bool offset, bool immediate = false)
     {
-        StartCoroutine(PlayNote_(offset, immediate));
+        StartCoroutine(PlayNote_(offset));
     }
 
-    IEnumerator PlayNote_(bool offset, bool immediate)
+    protected IEnumerator PlayNote_(bool offset)
     {
-        if(!TimeKeeper.mute || immediate)
-        {
-            float endTime = noteLength - (noteLength * .07f * (pitchShiftAmount > 0 ? pitchShiftAmount : 1f));
 
-            audioSource.PlayScheduled(AudioSettings.dspTime + (immediate ? 0f : 2.0f) + (offset ? 0.125f : 0f));
-            audioSource.SetScheduledEndTime(AudioSettings.dspTime + endTime + (immediate ? 0f : 2.0f) + (offset ? 0.125f : 0f));
+        audioSource.clip = AllInstruments.instruments[noteData.instrumentName];
+        if(!TimeKeeper.mute)
+        {
+            float endTime = AllInstruments.noteLengths[noteData.instrumentName] - (AllInstruments.noteLengths[noteData.instrumentName] * .07f * (pitchShiftAmount > 0 ? pitchShiftAmount : 1f));
+
+            audioSource.PlayScheduled(AudioSettings.dspTime + (offset ? 0.125f : 0f));
+            audioSource.SetScheduledEndTime(AudioSettings.dspTime + endTime + (offset ? 0.125f : 0f));
 
         }
 
-        yield return new WaitForSeconds((immediate ? 0f : 2f));
 
-        if (!TimeKeeper.mute && !immediate)
+        if (!TimeKeeper.mute)
         {
             loudness = 0f;
             SoundToColorControl.playingNotes.Add(this);
         }
 
-        float playTime = noteLength - 0.1f; // to avoid the very last frame of the sound file, in case it plays the start of the next key (probably should find a better solution eventually)
+        float playTime = AllInstruments.noteLengths[noteData.instrumentName] - 0.1f; // to avoid the very last frame of the sound file, in case it plays the start of the next key (probably should find a better solution eventually)
         float playTimer = playTime;
         while (playTimer > 0f)
         {
             float progress = playTimer / playTime;
 
-            if(!immediate)
+            if (progress <= 0.5f)
             {
-                if (progress <= 0.5f)
-                {
-                    loudness = progress / 5f;
-                }
-                else
-                {
-                    loudness = (1.0f - progress) / 5f;
-                }
+                loudness = progress / 5f;
             }
+            else
+            {
+                loudness = (1.0f - progress) / 5f;
+            }            
             
             
             float b = lowestBrightness + (progress * (1f - lowestBrightness));
@@ -117,12 +107,12 @@ public class Note : MonoBehaviour
 
         GetComponent<MeshRenderer>().material.SetColor("_Brightness", new Color(lowestBrightness, lowestBrightness, lowestBrightness, 1f));
         SoundToColorControl.playingNotes.Remove(this);
+
         loudness = 0f;
     }
 
     public void DeleteNote()
     {
-        ownerRing.placedNotes.Remove(noteID);
         Destroy(gameObject);
     }
 
@@ -130,48 +120,49 @@ public class Note : MonoBehaviour
     {
         if(Input.GetKey(KeyCode.LeftShift))
         {
-            key += 4;
+            noteData.pitch += 4;
         }
         else
         {
-            key += 1;
+            noteData.pitch += 1;
         }
         
 
-        if(key >= highestKey)
+        if(noteData.pitch >= highestKey)
         {
-            key = key - highestKey;
+            noteData.pitch = noteData.pitch - highestKey;
         }
 
         CalculateClipStartTimeAndPitchShift();
     }
+
     public void DecrementNote()
     {
         if (Input.GetKey(KeyCode.LeftShift))
         {
-            key -= 4;
+            noteData.pitch -= 4;
         }
         else
         {
-            key -= 1;
+            noteData.pitch -= 1;
         }
             
 
-        if (key < 0f)
+        if (noteData.pitch < 0f)
         {
-            key = highestKey + key; // because key will be negative, so it'll put it towards the end of the range
+            noteData.pitch = highestKey + noteData.pitch; // because noteData.pitch will be negative, so it'll put it towards the end of the range
         }
 
         CalculateClipStartTimeAndPitchShift();
     }
 
-    void CalculateClipStartTimeAndPitchShift() // specific enough?
+    protected void CalculateClipStartTimeAndPitchShift() // specific enough?
     {
-        int octave = key / 12;
+        int octave = noteData.pitch / 12;
 
-        audioClipStartTime = (float)octave * AllInstruments.noteLengths[instrumentName];
+        audioClipStartTime = (float)octave * AllInstruments.noteLengths[noteData.instrumentName];
 
-        pitchShiftAmount = (float)(key % 12) - 5f;
+        pitchShiftAmount = (float)(noteData.pitch % 12) - 5f; // % 12 == number of pitches/notes in an octave (including sharps/flats) and - 5 == roughly the middle of an octave
 
         audioSource.time = audioClipStartTime;
         audioSource.pitch = Mathf.Pow(1.05946f, pitchShiftAmount);

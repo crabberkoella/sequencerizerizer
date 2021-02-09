@@ -18,9 +18,9 @@ public class TimeKeeper : MonoBehaviour
     public static bool mute;
     public static bool selectingActiveRounds;
 
-    float sixteenthLength = 1f / 4f;
+    float sixteenthLength = 1f / 8f;
 
-    public PlayerController playerController;
+    public PlayerInteractionController playerController;
     AudioSource audioSource;
 
     public RectTransform activeRoundSelector;
@@ -69,7 +69,7 @@ public class TimeKeeper : MonoBehaviour
                 }
             }
 
-            notePlayed = sixteenthCounter + (beatCounter * 16);
+            notePlayed = sixteenthCounter;// + (beatCounter * 16);
         }
 
         if (Input.GetKeyUp(KeyCode.M))
@@ -93,7 +93,7 @@ public class TimeKeeper : MonoBehaviour
                     }
                 }
 
-                activeRing.roundsActive = newRoundsActive;
+                activeRing.SetRoundsActive(newRoundsActive);
 
                 Cursor.visible = false;
                 Cursor.lockState = CursorLockMode.Locked;
@@ -129,7 +129,7 @@ public class TimeKeeper : MonoBehaviour
 
                 for (int i = 0; i < activeRoundSelector.childCount; i++)
                 {
-                    if (playerController.activeRing.roundsActive.Contains(i))
+                    if (playerController.activeRing.GetRoundsActive().Contains(i))
                     {
                         activeRoundSelector.GetChild(i).GetComponent<Image>().color = new Color(1f, 1f, 1f, 1f);
                     }

@@ -8,34 +8,21 @@ public class InstrumentPalette : MonoBehaviour
 {
     public AllInstruments allInstruments;
 
-    public RectTransform instrumentOptionPrefab;
-    public string activeInstrument;
-    public Text activeInstrumentLabel;
-    public AudioClip activeInstrumentClip;
+    public InstrumentOption instrumentOptionPrefab;
+
     public InstrumentOption activeInstrumentOption;
-    public GameObject helpButton;
+
+    public Transform instrumentOptionHolder;
 
     // for displaying the options
-    Vector2 instrumentOptionStartPos; // where in the screen we put the first option
-    float instrumentOptionHeight = 100; // it just is, for now
-    float instrumentOptionMargin = 10;
-    int numberOfOptionsPerColumn;
+    Vector3 instrumentOptionStartPos = new Vector3(0.0742f, -0.0026f, 0.0758f); // where in the holder we put the first option
+    float instrumentOptionHeight = .03f; // should get this programmatically, later
+    float instrumentOptionMargin = .00043f;
 
-    float pitchShiftAmount;
-
-    int maxRows = 6;
-    //int maxColumns = 2;
-
-    AudioSource audioSource;
-
-    public RectTransform holder;
-    public GameObject helpPanel;
+    int maxRows = 3;
 
     void Start()
     {
-        audioSource = GetComponent<AudioSource>();
-
-        CalculateScreenDetails();
 
         CreatePalette();
 
@@ -48,89 +35,56 @@ public class InstrumentPalette : MonoBehaviour
 
     public void OptionClicked(InstrumentOption instrument)
     {
-
-        activeInstrument = instrument.instrumentName;
-        int note = instrument.key % 12;
-
-        activeInstrumentLabel.text = instrument.instrumentName + " " + AllInstruments.instrumentNoteIDToName[note];
-
-        audioSource.clip = instrument.audioClip;
-        audioSource.time = instrument.audioClipStartTime;
-
-        pitchShiftAmount = instrument.pitchShiftAmount; // we also need pitchShiftAmount to decide how long we play the file
-        audioSource.pitch = Mathf.Pow(1.05946f, pitchShiftAmount);        
+        int notePitch = instrument.noteData.pitch % 12;
 
         activeInstrumentOption = instrument;
-        activeInstrumentClip = instrument.audioClip;
-
-
-        StopAllCoroutines();
-        audioSource.Stop();
-        StartCoroutine(PlayNote_());
     }
 
-    IEnumerator PlayNote_()
+    public void Toggle()
     {
-        audioSource.Play();
-
-        float noteLength = AllInstruments.noteLengths[activeInstrument];
-
-        float endTime = noteLength - (noteLength * .07f * (pitchShiftAmount > 0 ? pitchShiftAmount : 1f)); // TODO this is confusing and I need to document it at some point
-
-        yield return new WaitForSeconds(endTime);
-
-        audioSource.Stop();
+        Animator animator = GetComponent<Animator>();
+        animator.SetBool("open", !animator.GetBool("open"));
     }
 
     void CreatePalette()
     {
         float xPos = instrumentOptionStartPos.x;
-        float yPos = instrumentOptionStartPos.y;
+        float zPos = instrumentOptionStartPos.z; // it's Z :shrug:
 
         int tmpcounter = 0;
         foreach (AudioClip audioClip in allInstruments.allStupidAudioClips)
         {
 
-            RectTransform instrumentOptionPrefabClone = Instantiate(instrumentOptionPrefab);
+            InstrumentOption instrumentOptionPrefabClone = Instantiate(instrumentOptionPrefab);
+            instrumentOptionPrefabClone.transform.SetParent(instrumentOptionHolder);
 
-            // placement
-            instrumentOptionPrefabClone.position = new Vector3(xPos, yPos, 0f);
+            instrumentOptionPrefabClone.transform.localPosition = new Vector3(xPos, instrumentOptionStartPos.y, zPos);
+            instrumentOptionPrefabClone.transform.localRotation = Quaternion.Euler(Vector3.zero);
 
-            instrumentOptionPrefabClone.SetParent(holder);
-
-            if(tmpcounter == maxRows)
+            if (tmpcounter == maxRows - 1)
             {
-                yPos = instrumentOptionStartPos.y;
-                xPos += 700f;
+                zPos = instrumentOptionStartPos.z;
+                xPos -= instrumentOptionHeight; // height because it's square (for now)
             }
             else
             {
-                yPos -= instrumentOptionHeight + instrumentOptionMargin;
+                zPos -= instrumentOptionHeight + instrumentOptionMargin;
             }
             
 
-            // properties; should probably move all this to its Start() <-- TO DO
             InstrumentOption newInstrumentOption = instrumentOptionPrefabClone.GetComponent<InstrumentOption>();
-            newInstrumentOption.key = AllInstruments.instrumentStartingNotes[audioClip.name];
-            //newInstrumentOption.keyLabel.text = ((int)(newInstrumentOption.key / AllInstruments.noteLengths[audioClip.name])).ToString();
-            newInstrumentOption.noteLabel.text = audioClip.name;
-            newInstrumentOption.instrumentName = audioClip.name;
-            newInstrumentOption.audioClip = audioClip;
+            NoteData noteData = new NoteData(audioClip.name, AllInstruments.instrumentStartingNotes[audioClip.name]);
 
-            newInstrumentOption.highestKey = (AllInstruments.numberOfOctaves[audioClip.name] * 12) - 1;
-            newInstrumentOption.CalculateClipStartTimeAndPitchShift();
-
-            newInstrumentOption.keyLabel.text = (newInstrumentOption.key).ToString();
+            newInstrumentOption.Initialize(noteData, -1); // -1 is noteID, but instrumentOptions don't use it
 
             tmpcounter++;
         }
-
-        //holder.gameObject.SetActive(false);
 
     }
 
     void CalculateScreenDetails() // TO DO --> make something for multiple 'screens' of options, like a parent gameobject per screen
     {
+        /*
         float width = (float)Screen.width;
         float height = (float)Screen.height;        
 
@@ -140,15 +94,6 @@ public class InstrumentPalette : MonoBehaviour
         numberOfOptionsPerColumn = Mathf.FloorToInt(numberOfOptionsPerColumn_);
 
         instrumentOptionStartPos = new Vector2(100f, height - 100f);
-
-    }
-
-    public void ToggleHelp()
-    {
-        bool helpVisible = helpPanel.activeSelf;
-
-        helpPanel.SetActive(!helpVisible);
-        holder.gameObject.SetActive(helpVisible);
-
+        */
     }
 }

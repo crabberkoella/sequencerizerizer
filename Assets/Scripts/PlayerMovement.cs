@@ -6,7 +6,7 @@ public class PlayerMovement : MonoBehaviour
 {
 
     Transform cam;
-    PlayerController playerController; // should move to delegate at some point
+    PlayerInteractionController playerController; // should move to delegate at some point
     Rigidbody rigidBody;
 
     Vector3 internalRotation = new Vector3(); // we have to keep track of it ourselves because of the unpredictable way transform.localEulerAngles returns
@@ -21,7 +21,7 @@ public class PlayerMovement : MonoBehaviour
     void Start()
     {
         cam = transform.GetChild(0);
-        playerController = GetComponent<PlayerController>();
+        playerController = GetComponent<PlayerInteractionController>();
         rigidBody = GetComponent<Rigidbody>();
     }
 
