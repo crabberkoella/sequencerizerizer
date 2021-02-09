@@ -6,6 +6,8 @@ using UnityEngine.UI;
 public class PlayerInteractionController : MonoBehaviour
 {
 
+    public Ring ringPrefab; // deliberately keeping public properties, here, so we don't need to make a prefab factory, which will likely need to be rebuilt for webgl anyway
+
     Transform cam;
 
     public InstrumentPalette instrumentPalette; // what might turn into the 'Toolbox'
@@ -182,7 +184,7 @@ public class PlayerInteractionController : MonoBehaviour
 
     public Ring CreateRing()
     {
-        Ring newRing = Instantiate(Prefabs.ring);
+        Ring newRing = Instantiate(ringPrefab);
 
         newRing.transform.position = new Vector3(0f, 1f + (2f * rings.Count), 0f);
 
