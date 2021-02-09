@@ -5,16 +5,17 @@ using UnityEngine;
 public class Ring : MonoBehaviour
 {
 
-    public Dictionary<int, Note> placedNotes = new Dictionary<int, Note>();
+    public Dictionary<int, Note> placedNotes = new Dictionary<int, Note>(); // Dictionary, not a List, because you could have a note at slot 2 and 4 and everything else is empty
+    public Note notePrefab; // it's unfortunate using a public parameter like this, but there isn't a great alternative for now
 
-    public Note notePrefab;
-    public bool offset = false;
+    bool offset = false;
 
-    public List<int> roundsActive = new List<int>();    
+    List<int> roundsActive = new List<int>();    
 
     void Update()
     {
-        if (roundsActive.Contains(TimeKeeper.roundCounter) == false) // make this smarter xD TO DO
+        // we're asking a couple of Contains() every Update to check if a Note should be played, but it keeps things orderly even if it's not hyper-efficient
+        if (roundsActive.Contains(TimeKeeper.roundCounter) == false)
         {
             return;
         }
@@ -25,23 +26,25 @@ public class Ring : MonoBehaviour
         }
     }
 
-    public void ToggleOffset()
+    private void Start()
     {
-        offset = !offset;
-        transform.rotation = (offset ? Quaternion.Euler(0f, 5.625f/2f, 180f) : Quaternion.identity);
+        roundsActive.Add(0);
     }
 
-    public void CreateNote(int noteID, Vector3 position, InstrumentOption instrumentOption)
+    public void CreateNote(InstrumentOption instrumentOption, int noteID, Transform location)
     {
 
         Note newNote = Instantiate(notePrefab, transform, true);
-        newNote.transform.position = position;
+        newNote.transform.position = location.position;
+        newNote.transform.rotation = location.rotation;
 
-        newNote.NoteStupidConstructor(this, instrumentOption.key, noteID, instrumentOption.instrumentName);
+        newNote.Initialize(instrumentOption.noteData, noteID);
 
         placedNotes[noteID] = newNote;
-    }
 
+        newNote.deleteNoteDelegate += RemoveNote;
+    }
+    /*
     public void CreateNoteFromSave(int noteID, Vector3 localRingPos, int noteKey, string instrumentName)
     {
         Note newNote = Instantiate(notePrefab, transform, true);
@@ -51,5 +54,33 @@ public class Ring : MonoBehaviour
 
         placedNotes[noteID] = newNote;
     }
+    */
+
+    public void ToggleOffset()
+    {
+        offset = !offset;
+        transform.rotation = (offset ? Quaternion.Euler(0f, 5.625f/2f, 180f) : Quaternion.identity); // TO DO make compatible with rotating rings
+    }
+
+    public bool IsOffset()
+    {
+        return offset;
+    }
+
+    public List<int> GetRoundsActive()
+    {
+        return roundsActive;
+    }
+
+    public void SetRoundsActive(List<int> roundsActiveIn)
+    {
+        roundsActive = roundsActiveIn;
+    }
+
+    public void RemoveNote(Note note)
+    {
+        placedNotes.Remove(note.noteID);
+    }
+    
 
 }
