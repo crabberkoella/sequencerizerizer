@@ -1,9 +1,8 @@
-﻿Shader "Unlit/Unicron"
+﻿Shader "Unlit/SimpleToggle"
 {
     Properties
     {
-        _MainTex ("Texture", 2D) = "white" {}
-		_CellNumber("Cell Number", float) = -1
+        _Strength ("Strength", float) = 1
     }
     SubShader
     {
@@ -33,60 +32,22 @@
                 float4 vertex : SV_POSITION;
             };
 
-            sampler2D _MainTex;
-            float4 _MainTex_ST;
-			float _CellNumber;
+			float _Strength;
 
             v2f vert (appdata v)
             {
                 v2f o;
                 o.vertex = UnityObjectToClipPos(v.vertex);
-                o.uv = TRANSFORM_TEX(v.uv, _MainTex);
+                //o.uv = TRANSFORM_TEX(v.uv, _MainTex);
                 UNITY_TRANSFER_FOG(o,o.vertex);
                 return o;
             }
 
             fixed4 frag (v2f i) : SV_Target
             {
+                // sample the texture
+                fixed4 col = float4(_Strength, _Strength, _Strength, 1.0);
 
-				float vertical = i.uv.y;// - 0.00125;
-
-				if(vertical < 0.0625/2.0)
-				{
-					vertical = 1.0 - vertical;
-				}
-
-				vertical = fmod(vertical, 0.0625);
-				float _out = 0;
-
-				float test = _CellNumber;
-				if(test == 0)
-				{
-					test = 16.0;
-				}
-
-				if (abs(vertical - 0.16) < 0.1)
-				{
-					_out = 1;
-					float v2 = i.uv.y;
-					if(v2 < 0.0625/2.0)
-					{
-						v2 = 1.0 - v2;
-					}
-					float c = v2 / 0.0625;
-					if( abs(test - c) < 0.5)
-					{
-						return fixed4(_out, _out, 0, 1);
-					}
-				}else
-				{
-					_out = 0;
-				}
-
-
-                fixed4 col = fixed4(_out, _out, _out, 1);
-                // apply fog
-                UNITY_APPLY_FOG(i.fogCoord, col);
                 return col;
             }
             ENDCG

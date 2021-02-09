@@ -19,15 +19,15 @@ public class PlayerInteractionController : MonoBehaviour
 
     public bool paused = false;
 
-    List<Ring> rings = new List<Ring>(); // just so we can put them in the right place when one's deleted TO DO (probably) offload this to a ringmaster
+    public List<Ring> rings = new List<Ring>(); // just so we can put them in the right place when one's deleted TO DO (probably) offload this to a ringmaster
 
     void Start()
     {
+        CreateRing();
+
         cam = transform.GetChild(0);
         Cursor.visible = false;
         Cursor.lockState = CursorLockMode.Locked;
-
-        rings.Add(GameObject.FindObjectOfType<Ring>());
     }
 
     List<int> activeRoundsToAssign = new List<int>(); // for the (very temporary) way we assign rings to which rounds to play
@@ -54,16 +54,57 @@ public class PlayerInteractionController : MonoBehaviour
 
     }
 
+    InteractableObject activeObject;
+
     // placing/tweaking notes
     void Interaction()
     {
+        // kiiiinda dumb, but it works well for now -> if we're not looking at a ring cell, set it to not highlight
+        for (int i = 0; i < rings.Count; i++)
+        {
+            rings[i].GetComponent<MeshRenderer>().material.SetFloat("_CellNumber", -10f);
+        }
+
+
         RaycastHit hit = new RaycastHit();
         
         activeRing = null;
 
+        if (Input.GetMouseButtonDown(0))
+        {
+            if (Physics.Raycast(transform.position, cam.forward, out hit, Mathf.Infinity, 1 << 15))
+            {
+                activeObject = hit.transform.GetComponent<InteractableObject>();
+                activeObject.PrimaryInteractDown(this);
+            }
+        }
+        else if (Input.GetMouseButtonUp(0))
+        {
+            if (activeObject != null)
+            {
+                activeObject.PrimaryInteractUp(this);
+
+                activeObject = null;
+            }
+        }
+        else if(Input.GetMouseButton(0))
+        {
+            if(activeObject != null)
+            {
+                activeObject.PrimaryInteract(this);
+            }
+        }
+
         // first if we're looking at a Note
         if (Physics.Raycast(transform.position, cam.forward, out hit, Mathf.Infinity, 1 << 12)) // 12 == Note
         {
+            if(Input.GetMouseButtonDown(0))
+            {
+                //hit.transform.GetComponent<Note>().PrimaryInteractDown(this);
+                //activeObject = hit.transform.GetComponent<Note>();
+            }
+            
+            /*
             // TO DO make compatible with InteractableObject, if possible
             activeNote = hit.transform.GetComponent<Note>();
             int n = (int)(activeNote.noteData.pitch / AllInstruments.noteLengths[activeNote.noteData.instrumentName]);
@@ -86,13 +127,16 @@ public class PlayerInteractionController : MonoBehaviour
             {
                 activeNote.DeleteNote();
             }
+            */
 
         } // now if we're looking at a Ring (placing a note)
         else if (Physics.Raycast(transform.position, cam.forward, out hit, Mathf.Infinity, 1<<10)) // 10 == Ring
         {
 
             activeRing = hit.transform.GetComponentInParent<Ring>(); // so it's always important the collision object is the child of the ring
-            
+
+            activeRing.GetComponent<MeshRenderer>().material.SetFloat("_CellNumber", (float)hit.collider.gameObject.transform.GetSiblingIndex());
+
             // drop a note if its empty
             if (Input.GetMouseButtonUp(0))
             {
@@ -101,12 +145,16 @@ public class PlayerInteractionController : MonoBehaviour
                     // figure out which note spot we're hitting
                     int cellNumber = hit.collider.gameObject.transform.GetSiblingIndex();
 
-                    activeRing.CreateNote(instrumentPalette.activeInstrumentOption, cellNumber, hit.collider.transform);
+                    if (!activeRing.placedNotes.ContainsKey(cellNumber))
+                    {
+                        activeRing.CreateNote(instrumentPalette.activeInstrumentOption, cellNumber, hit.collider.transform);
+                    }
+                    
                 }
                 
             }
 
-            // toggle offset
+            // toggle offset -- change these to 3D buttons
             if (Input.GetKeyUp(KeyCode.O))
             {
                 activeRing.ToggleOffset();
@@ -184,12 +232,31 @@ public class PlayerInteractionController : MonoBehaviour
 
     public Ring CreateRing()
     {
-        Ring newRing = Instantiate(ringPrefab);
-
-        newRing.transform.position = new Vector3(0f, 1f + (2f * rings.Count), 0f);
+        Ring newRing = Instantiate(ringPrefab);        
 
         rings.Add(newRing);
 
+        newRing.transform.position = new Vector3(0f, 1f + (2f * (rings.Count - 1)), 0f);
+
+        List<int> ringRoundsActive = new List<int>();
+        for (int i = 0; i < TimeKeeper.numberOfRounds; i++)
+        {            
+
+            if (i == TimeKeeper.numberOfRounds - 1)
+            {
+                ringRoundsActive.Add(i);
+                RingRound newRingRound = newRing.NewRoundAdded(i, true);                
+            }else
+            {
+                RingRound newRingRound = newRing.NewRoundAdded(i, false);
+            }
+            
+        }
+        
+        //ringsRoundsActive.Add(TimeKeeper.numberOfRounds - 1); // by default we'll just have it active on the last round :shrug:
+
+        newRing.SetRoundsActive(ringRoundsActive);
+        
         return newRing;
     }
 

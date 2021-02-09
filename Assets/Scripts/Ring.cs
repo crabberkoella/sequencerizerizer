@@ -7,6 +7,7 @@ public class Ring : MonoBehaviour
 
     public Dictionary<int, Note> placedNotes = new Dictionary<int, Note>(); // Dictionary, not a List, because you could have a note at slot 2 and 4 and everything else is empty
     public Note notePrefab; // it's unfortunate using a public parameter like this, but there isn't a great alternative for now
+    public RingRound ringRoundPrefab;
 
     bool offset = false;
 
@@ -28,7 +29,26 @@ public class Ring : MonoBehaviour
 
     private void Start()
     {
-        roundsActive.Add(0);
+
+    }
+
+    public RingRound NewRoundAdded(int roundNumber, bool activeIn = false)
+    {
+        RingRound newRingRound = Instantiate(ringRoundPrefab);
+
+        newRingRound.ownerRing = this;
+
+        newRingRound.transform.parent = transform;
+        newRingRound.transform.SetAsLastSibling();
+
+        newRingRound.transform.localEulerAngles = new Vector3(0f, 12f + ((roundNumber - 1f) * 6f), 0f);
+        newRingRound.transform.localPosition = new Vector3(0f, .8f, 0f);
+
+        newRingRound.roundNumber = roundNumber;
+
+        newRingRound.SetActive(activeIn);
+
+        return newRingRound;
     }
 
     public void CreateNote(InstrumentOption instrumentOption, int noteID, Transform location)
@@ -75,6 +95,18 @@ public class Ring : MonoBehaviour
     public void SetRoundsActive(List<int> roundsActiveIn)
     {
         roundsActive = roundsActiveIn;
+        /*
+        RingRound[] ringRounds = transform.GetComponentsInChildren<RingRound>(); // TO DO --> very sloppy, here
+
+        for (int i = 0; i < ringRounds.Length; i++)
+        {
+            Debug.Log(ringRounds[i].transform.GetSiblingIndex());
+            if(!roundsActive.Contains(i))
+            {
+                ringRounds[i].PrimaryInteractUp();
+            }
+        }
+        */
     }
 
     public void RemoveNote(Note note)

@@ -29,7 +29,7 @@ public class Note : InteractableObject
 
     public void Initialize(NoteData noteDataIn, int noteIDIn)
     {
-
+         
         noteData = noteDataIn;
         noteID = noteIDIn;
 
@@ -46,14 +46,19 @@ public class Note : InteractableObject
         //PlayNote(false, true);
     }
 
-    void Start()
+    public override void PrimaryInteractDown(PlayerInteractionController player = null)
     {
-
+        base.PrimaryInteractDown(player);
     }
-    
-    void Update()
+
+    public override void PrimaryInteract(PlayerInteractionController player = null)
     {
-        
+        base.PrimaryInteract(player);
+    }
+
+    public override void PrimaryInteractUp(PlayerInteractionController player = null)
+    {
+        base.PrimaryInteractUp(player);
     }
 
     public void PlayNote(bool offset, bool immediate = false)
