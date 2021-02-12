@@ -13,19 +13,22 @@ public class InstrumentOption : Note
 
     }
 
-    public override void PrimaryInteract(PlayerInteractionController player = null)
+    public override void PrimaryInteractUp(PlayerInteractionController player = null)
     {
+        base.PrimaryInteractUp(player);
 
-        if(transform.GetComponentInParent<InstrumentPalette>().activeInstrumentOption == this)
+        if (transform.GetComponentInParent<InstrumentPalette>().activeInstrumentOption == this)
         {
             IncrementNote();
-        }        
+        }
 
         ClickedOn();
     }
 
-    public override void SecondaryInteract(PlayerInteractionController player = null)
+    public override void SecondaryInteractUp(PlayerInteractionController player = null)
     {
+        base.SecondaryInteractUp(player);
+
         if (transform.GetComponentInParent<InstrumentPalette>().activeInstrumentOption == this)
         {
             DecrementNote();

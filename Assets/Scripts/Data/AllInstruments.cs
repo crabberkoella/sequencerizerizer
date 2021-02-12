@@ -11,10 +11,12 @@ public class AllInstruments : MonoBehaviour
     public List<AudioClip> allStupidAudioClips = new List<AudioClip>();
 
     // this might not be the best way to do this
-    public static GameObject noteObjectDrum;
-    public static GameObject noteObjectClap;
-    public static GameObject noteObjectKeys;
-    public static GameObject noteObjectBell;
+    public Texture noteObjectDrum;
+    public Texture noteObjectClap;
+    public Texture noteObjectKeys;
+    public Texture noteObjectBell;
+    public Texture noteObjectWave;
+    public Texture noteObjectOcean;
 
     private void Start()
     {
@@ -22,6 +24,16 @@ public class AllInstruments : MonoBehaviour
         {
             instruments[audioClip.name] = audioClip;
         }
+
+        instrumentNoteTextures = new Dictionary<string, Texture>()
+        {
+            {"PlasticKeys", noteObjectKeys },
+            {"80sSineSynth", noteObjectWave },
+            {"ClassicFunkBoogieBass", noteObjectOcean },
+            {"StudioStomps", noteObjectDrum },
+            {"ElectronicCowbell", noteObjectBell },
+            {"PawnShopClaps", noteObjectClap }
+        };
 
     }
 
@@ -69,15 +81,7 @@ public class AllInstruments : MonoBehaviour
         {"PawnShopClaps", 6 }
     };
 
-    public static Dictionary<string, GameObject> instrumentNoteMeshes = new Dictionary<string, GameObject>()
-    {
-        {"PlasticKeys", noteObjectDrum },
-        {"80sSineSynth", noteObjectKeys },
-        {"ClassicFunkBoogieBass", noteObjectKeys },
-        {"StudioStomps", noteObjectDrum },
-        {"ElectronicCowbell", noteObjectBell },
-        {"PawnShopClaps", noteObjectClap }
-    };
+    public Dictionary<string, Texture> instrumentNoteTextures;
 
     public static List<string> instrumentNoteIDToName = new List<string>() { "G", "G#", "A", "A#", "B", "C", "C#", "D", "D#", "E", "F", "F#" };
 }

@@ -30,31 +30,29 @@ public class PlayerInteractionController : MonoBehaviour
         Cursor.lockState = CursorLockMode.Locked;
     }
 
-    List<int> activeRoundsToAssign = new List<int>(); // for the (very temporary) way we assign rings to which rounds to play
+
     void Update()
     {
         if (!paused)
         {
-            if (Input.GetKeyUp(KeyCode.R))
-            {
-                CreateRing();
-            }
-
             
         }
+
         Interaction();
-        if (Input.GetKeyUp(KeyCode.Space) && !TimeKeeper.selectingActiveRounds)
+
+        if (Input.GetKeyUp(KeyCode.Space))
         {
             paused = !paused;
+
             Cursor.visible = paused;
             Cursor.lockState = (paused ? CursorLockMode.None : CursorLockMode.Locked);
-            //menu.SetActive(paused);
+
             instrumentPalette.Toggle();
         }
 
     }
 
-    InteractableObject activeObject;
+    InteractableObject activeObject;    
 
     // placing/tweaking notes
     void Interaction()
@@ -74,8 +72,11 @@ public class PlayerInteractionController : MonoBehaviour
         {
             if (Physics.Raycast(transform.position, cam.forward, out hit, Mathf.Infinity, 1 << 15))
             {
-                activeObject = hit.transform.GetComponent<InteractableObject>();
-                activeObject.PrimaryInteractDown(this);
+                if(activeObject == null)
+                {
+                    activeObject = hit.transform.GetComponent<InteractableObject>();
+                    activeObject.PrimaryInteractDown(this);
+                }                
             }
         }
         else if (Input.GetMouseButtonUp(0))
@@ -94,6 +95,35 @@ public class PlayerInteractionController : MonoBehaviour
                 activeObject.PrimaryInteract(this);
             }
         }
+
+        if (Input.GetMouseButtonDown(1))
+        {
+            if (Physics.Raycast(transform.position, cam.forward, out hit, Mathf.Infinity, 1 << 15))
+            {
+                if (activeObject == null)
+                {
+                    activeObject = hit.transform.GetComponent<InteractableObject>();
+                    activeObject.SecondaryInteractDown(this);
+                }
+            }
+        }
+        else if (Input.GetMouseButtonUp(1))
+        {
+            if (activeObject != null)
+            {
+                activeObject.SecondaryInteractUp(this);
+
+                activeObject = null;
+            }
+        }
+        else if (Input.GetMouseButton(1))
+        {
+            if (activeObject != null)
+            {
+                activeObject.SecondaryInteract(this);
+            }
+        }
+
 
         // first if we're looking at a Note
         if (Physics.Raycast(transform.position, cam.forward, out hit, Mathf.Infinity, 1 << 12)) // 12 == Note
@@ -189,9 +219,7 @@ public class PlayerInteractionController : MonoBehaviour
         Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
         if (Input.GetMouseButtonUp(0) && Physics.Raycast(ray, out hit, Mathf.Infinity, 1<<14))
         {
-            //Debug.Log("hmm");
-            //Debug.Log(hit.collider.gameObject);
-            hit.collider.GetComponent<InstrumentOption>().PrimaryInteract(this);
+            hit.collider.GetComponent<InstrumentOption>().PrimaryInteractUp(this);
         }
     }
 
@@ -238,6 +266,7 @@ public class PlayerInteractionController : MonoBehaviour
 
         newRing.transform.position = new Vector3(0f, 1f + (2f * (rings.Count - 1)), 0f);
 
+        
         List<int> ringRoundsActive = new List<int>();
         for (int i = 0; i < TimeKeeper.numberOfRounds; i++)
         {            

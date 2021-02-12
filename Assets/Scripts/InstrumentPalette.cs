@@ -77,6 +77,8 @@ public class InstrumentPalette : MonoBehaviour
 
             newInstrumentOption.Initialize(noteData, -1); // -1 is noteID, but instrumentOptions don't use it
 
+            instrumentOptionPrefabClone.gameObject.GetComponent<MeshRenderer>().material.SetTexture("_EmissionMap", allInstruments.instrumentNoteTextures[audioClip.name]);
+
             tmpcounter++;
         }
 

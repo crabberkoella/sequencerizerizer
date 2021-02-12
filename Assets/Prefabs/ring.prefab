@@ -277,7 +277,7 @@ GameObject:
   - component: {fileID: 4103403019174782595}
   - component: {fileID: 4173750786264486543}
   m_Layer: 13
-  m_Name: ring_01
+  m_Name: ring
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -375,6 +375,8 @@ MonoBehaviour:
   notePrefab: {fileID: -8978682442401732094, guid: dfaedebe08d5af249920dbe32ae8641d,
     type: 3}
   ringRoundPrefab: {fileID: 4161587513994551183, guid: 5c7579f333b1b5f43a7758c347b695a8,
+    type: 3}
+  ringSpeedControllerPrefab: {fileID: 6758475623409009712, guid: 6b0232f53da033443a5b69aa8b66289f,
     type: 3}
 --- !u!1 &3493374246334756852
 GameObject:

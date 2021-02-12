@@ -20,7 +20,17 @@ public class InteractableObject : MonoBehaviour
 
     }
 
+    public virtual void SecondaryInteractDown(PlayerInteractionController player = null)
+    {
+
+    }
+
     public virtual void SecondaryInteract(PlayerInteractionController player = null)
+    {
+
+    }
+
+    public virtual void SecondaryInteractUp(PlayerInteractionController player = null)
     {
 
     }

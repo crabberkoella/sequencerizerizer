@@ -8,18 +8,22 @@ public class TimeKeeper : MonoBehaviour
 
     public RoundRep roundRepPrefab;
 
+    public static bool thirtysecondPlayedThisFrame;
     public static bool sixteenthPlayedThisFrame;
     public static int sixteenthCounter = 0;
+    public static int thirtysecondCounter = 0;
     public static int beatCounter = 0; // may not need to be static in the end--may not even need beatCounter at all
     public static int roundCounter = 0;
     public static int notePlayed; // basically changing sixteenthCounter and beatCounter to a 0 - 63 number
-    public static int numberOfRounds = 1;
+    public static int numberOfRounds = 0;
 
+    double lastThirtysecondTime;
     double lastSixteenthTime;
     
     public static bool mute;
     public static bool selectingActiveRounds;
 
+    float thirtysecondLength = 1f / 16f;
     float sixteenthLength = 1f / 8f;
 
     public PlayerInteractionController playerController;
@@ -28,42 +32,38 @@ public class TimeKeeper : MonoBehaviour
     private void Start()
     {
         lastSixteenthTime = AudioSettings.dspTime;
+        lastThirtysecondTime = AudioSettings.dspTime;
+        CreateRound();
     }
     
     void Update()
     {
-        // letting the player reset the time to 0, so you don't have to wait for the whole thing to go around
-        if (Input.GetKeyUp(KeyCode.Home))
-        {
-            sixteenthCounter = -1;
-            beatCounter = 0;
-        }
 
+        thirtysecondPlayedThisFrame = false;
         sixteenthPlayedThisFrame = false;
+
 
         double time = AudioSettings.dspTime;
         
-        if(time - lastSixteenthTime > sixteenthLength)
+        if(time - lastThirtysecondTime > thirtysecondLength)//lastSixteenthTime > sixteenthLength)
         {
-            sixteenthCounter += 1;
-            lastSixteenthTime = time;
+            thirtysecondCounter += 1;
+            lastThirtysecondTime = time;
 
-            sixteenthPlayedThisFrame = true;
+            thirtysecondPlayedThisFrame = true;
 
-            if (sixteenthCounter == 16)
+            if (thirtysecondCounter == 128)
             {
-                sixteenthCounter = 0;
+                thirtysecondCounter = 0;
 
                 roundCounter += 1;
 
-                if (roundCounter == numberOfRounds)
+                if (roundCounter >= numberOfRounds)
                 {
                     roundCounter = 0;
                 }
 
             }
-
-            notePlayed = sixteenthCounter;// + (beatCounter * 16);
         }
 
         if (Input.GetKeyUp(KeyCode.M))
@@ -79,6 +79,7 @@ public class TimeKeeper : MonoBehaviour
         numberOfRounds += 1;
 
         RoundRep newRoundRep = Instantiate(roundRepPrefab);
+        newRoundRep.roundNumber = numberOfRounds - 1;
 
         newRoundRep.transform.parent = this.transform;
 
@@ -88,6 +89,28 @@ public class TimeKeeper : MonoBehaviour
         {
             ring.NewRoundAdded(numberOfRounds - 1);
         }
+
+        newRoundRep.timeKeeper = this;
+    }
+
+    public void RemoveRound(int roundNumberRemoved)
+    {
+        numberOfRounds -= 1;
+
+        foreach(Ring ring in playerController.rings)
+        {
+            ring.RoundRemoved(roundNumberRemoved);
+        }
+
+        foreach (RoundRep roundRep in GetComponentsInChildren<RoundRep>())
+        {
+            if(roundRep.roundNumber > roundNumberRemoved)
+            {
+                roundRep.roundNumber -= 1;
+            }
+            roundRep.transform.localEulerAngles = new Vector3(0f, 30f + (roundRep.roundNumber * 20f), 0f);
+        }
+
     }
 
     public void SetRounds(int n)
