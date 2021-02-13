@@ -26,6 +26,26 @@ public class Note : InteractableObject
     public Color outColor = new Color(); // these two are public because the SoundToColorController
     public float loudness = 0;           // uses them to add up the final color value of Rings et al
 
+    // when changing Note pitch by clicking and dragging
+    float mouseDeltaY;
+    int pitchStart;
+
+    private void Start()
+    {
+        CalculateClipStartTimeAndPitchShift();
+    }
+
+    private void Update()
+    {
+        int octave = noteData.pitch / 12;
+
+        audioClipStartTime = (float)octave * AllInstruments.noteLengths[noteData.instrumentName];
+
+        pitchShiftAmount = (float)(noteData.pitch % 12) - 5f; // % 12 == number of pitches/notes in an octave (including sharps/flats) and - 5 == roughly the middle of an octave
+
+        audioSource.time = audioClipStartTime;
+        audioSource.pitch = Mathf.Pow(1.05946f, pitchShiftAmount);
+    }
 
     public void Initialize(NoteData noteDataIn, int noteIDIn)
     {
@@ -49,11 +69,33 @@ public class Note : InteractableObject
     public override void PrimaryInteractDown(PlayerInteractionController player = null)
     {
         base.PrimaryInteractDown(player);
+
+        mouseDeltaY = 0f;
+        pitchStart = noteData.pitch;
     }
 
     public override void PrimaryInteract(PlayerInteractionController player = null)
     {
         base.PrimaryInteract(player);
+
+        mouseDeltaY += Input.GetAxis("Mouse Y") * 2f;
+
+        int pitchOut = pitchStart + Mathf.FloorToInt(mouseDeltaY);
+
+        if (pitchOut >= highestKey)
+        {
+            pitchOut = highestKey;            
+        }
+
+        pitchOut = Mathf.Max(0, pitchOut);
+
+        if (pitchOut != noteData.pitch)
+        {
+            noteData.pitch = pitchOut;
+            CalculateClipStartTimeAndPitchShift();
+
+            PlayNote();
+        }
     }
 
     public override void PrimaryInteractUp(PlayerInteractionController player = null)
@@ -61,12 +103,18 @@ public class Note : InteractableObject
         base.PrimaryInteractUp(player);
     }
 
-    public void PlayNote(bool offset, bool immediate = false)
+    public override void SecondaryInteractUp(PlayerInteractionController player = null)
     {
-        StartCoroutine(PlayNote_(offset));
+        base.SecondaryInteractUp(player);
     }
 
-    protected IEnumerator PlayNote_(bool offset)
+    public void PlayNote()
+    {
+        CalculateClipStartTimeAndPitchShift();
+        StartCoroutine(PlayNote_());
+    }
+
+    protected IEnumerator PlayNote_()
     {
 
         audioSource.clip = AllInstruments.instruments[noteData.instrumentName];
@@ -74,8 +122,8 @@ public class Note : InteractableObject
         {
             float endTime = AllInstruments.noteLengths[noteData.instrumentName] - (AllInstruments.noteLengths[noteData.instrumentName] * .07f * (pitchShiftAmount > 0 ? pitchShiftAmount : 1f));
 
-            audioSource.PlayScheduled(AudioSettings.dspTime + (offset ? 0.125f : 0f));
-            audioSource.SetScheduledEndTime(AudioSettings.dspTime + endTime + (offset ? 0.125f : 0f));
+            audioSource.PlayScheduled(AudioSettings.dspTime);
+            audioSource.SetScheduledEndTime(AudioSettings.dspTime + endTime);
 
         }
 
@@ -118,6 +166,8 @@ public class Note : InteractableObject
 
     public void DeleteNote()
     {
+        GetComponentInParent<Ring>().RemoveNote(this);
+
         Destroy(gameObject);
     }
 
@@ -161,7 +211,7 @@ public class Note : InteractableObject
         CalculateClipStartTimeAndPitchShift();
     }
 
-    protected void CalculateClipStartTimeAndPitchShift() // specific enough?
+    public virtual void CalculateClipStartTimeAndPitchShift() // specific enough?
     {
         int octave = noteData.pitch / 12;
 

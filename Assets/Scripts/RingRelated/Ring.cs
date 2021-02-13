@@ -10,7 +10,7 @@ public class Ring : MonoBehaviour
     public RingRound ringRoundPrefab;
     public RingSpeedController ringSpeedControllerPrefab;
 
-    RingSpeedController ringSpeedController;
+    public RingSpeedController ringSpeedController;
 
     bool offset = false;
     int speed = 2;
@@ -46,7 +46,7 @@ public class Ring : MonoBehaviour
 
                 if (TimeKeeper.thirtysecondPlayedThisFrame && speedZeroRoundsActive[TimeKeeper.roundCounter][0] && placedNotes.ContainsKey(notePlayed)) // notePlayed == 16th counter (old)
                 {
-                    placedNotes[notePlayed].PlayNote(offset);
+                    placedNotes[notePlayed].PlayNote();
                 }
 
                 break;
@@ -58,7 +58,7 @@ public class Ring : MonoBehaviour
 
                 if (TimeKeeper.thirtysecondPlayedThisFrame && speedOneRoundsActive[TimeKeeper.roundCounter][thirtySecond / 64] && placedNotes.ContainsKey(notePlayed)) // notePlayed == 16th counter (old)
                 {
-                    placedNotes[notePlayed].PlayNote(offset);
+                    placedNotes[notePlayed].PlayNote();
                 }
                 break;
             case 2:
@@ -69,7 +69,7 @@ public class Ring : MonoBehaviour
 
                 if (TimeKeeper.thirtysecondPlayedThisFrame && speedTwoRoundsActive[TimeKeeper.roundCounter][thirtySecond / 32] && placedNotes.ContainsKey(notePlayed)) // notePlayed == 16th counter (old)
                 {
-                    placedNotes[notePlayed].PlayNote(offset);
+                    placedNotes[notePlayed].PlayNote();
                 }
                 break;
             case 3:
@@ -77,31 +77,10 @@ public class Ring : MonoBehaviour
 
                 if (TimeKeeper.thirtysecondPlayedThisFrame && speedThreeRoundsActive[TimeKeeper.roundCounter][thirtySecond / 16] && placedNotes.ContainsKey(notePlayed)) // notePlayed == 16th counter (old)
                 {
-                    placedNotes[notePlayed].PlayNote(offset);
+                    placedNotes[notePlayed].PlayNote();
                 }
                 break;
         }
-        /*
-        else if (speed == 2)
-        {            
-            if(thirtySecond % 2 == 0) // to prevent 16th's getting played twice, because of the way int's divide by 2
-            {
-                notePlayed = (thirtySecond % 32) / 2;
-            }
-        }else if (speed == 1)
-        {
-            if(thirtySecond % 4 == 0)
-            {
-                notePlayed = (thirtySecond % 64) / 4;
-            }            
-        } else if (speed == 0)
-        {
-            if (thirtySecond % 8 == 0)
-            {
-                notePlayed = thirtySecond / 8;
-            }
-        }
-        */
     }
 
     public void PieClicked(int round, int microRound)
@@ -129,7 +108,10 @@ public class Ring : MonoBehaviour
     private void Start()
     {
         ringSpeedController = Instantiate(ringSpeedControllerPrefab);
-        ringSpeedController.Initialize(this);        
+        ringSpeedController.Initialize(this);
+
+        ringSpeedController.transform.parent = transform;
+        ringSpeedController.transform.SetAsLastSibling(); // not for any particular reason
     }
 
     List<RingRound> ringRounds = new List<RingRound>();
@@ -242,18 +224,27 @@ public class Ring : MonoBehaviour
 
     }
 
-    public void CreateNote(InstrumentOption instrumentOption, int noteID, Transform location)
+    public void CreateNote(NoteData instrumentOptionData, int noteID, Transform location)
     {
 
         Note newNote = Instantiate(notePrefab, transform, true);
         newNote.transform.position = location.position;
         newNote.transform.rotation = location.rotation;
-
-        newNote.Initialize(instrumentOption.noteData, noteID);
+        
+        newNote.Initialize(instrumentOptionData, noteID);
 
         placedNotes[noteID] = newNote;
 
-        newNote.deleteNoteDelegate += RemoveNote;
+        //StartCoroutine(_CreateNote(newNote));
+
+        //newNote.deleteNoteDelegate += RemoveNote;
+    }
+
+    IEnumerator _CreateNote(Note newNote)
+    {
+        yield return new WaitForSeconds(1.06f); // TO DO VERY TEMPORARY
+
+        newNote.CalculateClipStartTimeAndPitchShift();
     }
     /*
     public void CreateNoteFromSave(int noteID, Vector3 localRingPos, int noteKey, string instrumentName)

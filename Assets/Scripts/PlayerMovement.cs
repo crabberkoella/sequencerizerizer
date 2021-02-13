@@ -18,6 +18,9 @@ public class PlayerMovement : MonoBehaviour
 
     bool grounded = true;
 
+    // so we don't move up so much when changing the pitch of a note (won't apply to VR)
+    public bool tweakingNote = false;
+
     void Start()
     {
         cam = transform.GetChild(0);
@@ -43,12 +46,12 @@ public class PlayerMovement : MonoBehaviour
 
         if (Input.GetAxis("Mouse Y") > 0f && internalRotation.x > -88f)
         {
-            internalRotation.x -= Input.GetAxis("Mouse Y") * rotateSpeed;
+            internalRotation.x -= Input.GetAxis("Mouse Y") * rotateSpeed * (tweakingNote ? 0.25f : 1f);
         }
 
         if (Input.GetAxis("Mouse Y") < 0f && internalRotation.x < 88f)
         {
-            internalRotation.x -= Input.GetAxis("Mouse Y") * rotateSpeed;
+            internalRotation.x -= Input.GetAxis("Mouse Y") * rotateSpeed * (tweakingNote ? 0.25f : 1f);
         }
 
         cam.localEulerAngles = internalRotation;

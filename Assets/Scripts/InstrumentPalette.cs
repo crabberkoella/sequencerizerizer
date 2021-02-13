@@ -14,6 +14,8 @@ public class InstrumentPalette : MonoBehaviour
 
     public Transform instrumentOptionHolder;
 
+    public NoteData activeInstrumentOptionData;
+
     // for displaying the options
     Vector3 instrumentOptionStartPos = new Vector3(0.0742f, -0.0026f, 0.0758f); // where in the holder we put the first option
     float instrumentOptionHeight = .03f; // should get this programmatically, later
@@ -35,9 +37,8 @@ public class InstrumentPalette : MonoBehaviour
 
     public void OptionClicked(InstrumentOption instrument)
     {
-        int notePitch = instrument.noteData.pitch % 12;
-
         activeInstrumentOption = instrument;
+        activeInstrumentOptionData = instrument.noteData;
     }
 
     public void Toggle()
@@ -82,20 +83,5 @@ public class InstrumentPalette : MonoBehaviour
             tmpcounter++;
         }
 
-    }
-
-    void CalculateScreenDetails() // TO DO --> make something for multiple 'screens' of options, like a parent gameobject per screen
-    {
-        /*
-        float width = (float)Screen.width;
-        float height = (float)Screen.height;        
-
-        float numberOfOptionsPerColumn_ = height - (instrumentOptionHeight * 2f); // bottom margin
-
-        numberOfOptionsPerColumn_ = numberOfOptionsPerColumn_ / (instrumentOptionHeight + instrumentOptionMargin);
-        numberOfOptionsPerColumn = Mathf.FloorToInt(numberOfOptionsPerColumn_);
-
-        instrumentOptionStartPos = new Vector2(100f, height - 100f);
-        */
     }
 }

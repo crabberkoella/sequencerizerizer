@@ -40,6 +40,11 @@ public class InstrumentOption : Note
     public void ClickedOn()
     {
         transform.parent.GetComponentInParent<InstrumentPalette>().OptionClicked(this);
-        PlayNote(false, true);
+        PlayNote();
+    }
+
+    public override void CalculateClipStartTimeAndPitchShift()
+    {
+        base.CalculateClipStartTimeAndPitchShift();
     }
 }

@@ -76,6 +76,11 @@ public class PlayerInteractionController : MonoBehaviour
                 {
                     activeObject = hit.transform.GetComponent<InteractableObject>();
                     activeObject.PrimaryInteractDown(this);
+
+                    if(activeObject.GetComponent<Note>() != null)
+                    {
+                        GetComponent<PlayerMovement>().tweakingNote = true;
+                    }
                 }                
             }
         }
@@ -85,7 +90,13 @@ public class PlayerInteractionController : MonoBehaviour
             {
                 activeObject.PrimaryInteractUp(this);
 
+                if (activeObject.GetComponent<Note>() != null)
+                {
+                    GetComponent<PlayerMovement>().tweakingNote = false;
+                }
+
                 activeObject = null;
+
             }
         }
         else if(Input.GetMouseButton(0))
@@ -124,103 +135,64 @@ public class PlayerInteractionController : MonoBehaviour
             }
         }
 
-
-        // first if we're looking at a Note
-        if (Physics.Raycast(transform.position, cam.forward, out hit, Mathf.Infinity, 1 << 12)) // 12 == Note
-        {
-            if(Input.GetMouseButtonDown(0))
-            {
-                //hit.transform.GetComponent<Note>().PrimaryInteractDown(this);
-                //activeObject = hit.transform.GetComponent<Note>();
-            }
-            
-            /*
-            // TO DO make compatible with InteractableObject, if possible
-            activeNote = hit.transform.GetComponent<Note>();
-            int n = (int)(activeNote.noteData.pitch / AllInstruments.noteLengths[activeNote.noteData.instrumentName]);
-            n = n % 12;
-
-            // TO DO change to keyboard-less interaction
-            if (Input.GetKeyUp(KeyCode.UpArrow)) // move this to the note
-            {
-                activeNote.IncrementNote();
-                activeNote.PlayNote(false, true);
-            }
-
-            if (Input.GetKeyUp(KeyCode.DownArrow))
-            {
-                activeNote.DecrementNote();
-                activeNote.PlayNote(false, true);
-            }
-
-            if (Input.GetKeyUp(KeyCode.Delete) || Input.GetKeyUp(KeyCode.Backspace))
-            {
-                activeNote.DeleteNote();
-            }
-            */
-
-        } // now if we're looking at a Ring (placing a note)
-        else if (Physics.Raycast(transform.position, cam.forward, out hit, Mathf.Infinity, 1<<10)) // 10 == Ring
+        // rings are special
+        if (Physics.Raycast(transform.position, cam.forward, out hit, Mathf.Infinity, 1<<10)) // 10 == Ring
         {
 
             activeRing = hit.transform.GetComponentInParent<Ring>(); // so it's always important the collision object is the child of the ring
 
             activeRing.GetComponent<MeshRenderer>().material.SetFloat("_CellNumber", (float)hit.collider.gameObject.transform.GetSiblingIndex());
 
+            // figure out which note spot we're hitting
+            int cellNumber = hit.collider.gameObject.transform.GetSiblingIndex();
+
             // drop a note if its empty
             if (Input.GetMouseButtonUp(0))
             {
-                if(instrumentPalette.activeInstrumentOption != null && !paused)
+                if(!paused)
                 {
-                    // figure out which note spot we're hitting
-                    int cellNumber = hit.collider.gameObject.transform.GetSiblingIndex();
 
-                    if (!activeRing.placedNotes.ContainsKey(cellNumber))
+                    if (!activeRing.placedNotes.ContainsKey(cellNumber) && instrumentPalette.activeInstrumentOptionData != null)
                     {
-                        activeRing.CreateNote(instrumentPalette.activeInstrumentOption, cellNumber, hit.collider.transform);
+                        NoteData nd = new NoteData();
+                        nd.pitch = instrumentPalette.activeInstrumentOptionData.pitch;
+                        nd.instrumentName = instrumentPalette.activeInstrumentOptionData.instrumentName;
+
+                        activeRing.CreateNote(nd, cellNumber, hit.collider.transform);
+                    }
+                    else if(activeRing.placedNotes.ContainsKey(cellNumber))
+                    {
+                        instrumentPalette.activeInstrumentOptionData = activeRing.placedNotes[cellNumber].noteData;
+                        activeRing.placedNotes[cellNumber].PlayNote();
                     }
                     
                 }
                 
-            }
-
-            // toggle offset -- change these to 3D buttons
-            if (Input.GetKeyUp(KeyCode.O))
+            } else if (Input.GetMouseButtonUp(1))
             {
-                activeRing.ToggleOffset();
-            }
-
-            // destroy <-- TO DO: bring every ring down that's above the one destroyed
-            if(Input.GetKeyUp(KeyCode.T))
-            {
-                rings.Remove(activeRing);
-                Destroy(activeRing.gameObject);
-
-                StartCoroutine(MoveRingsToPosition());
+                if(activeRing.placedNotes.ContainsKey(cellNumber))
+                {
+                    activeRing.placedNotes[cellNumber].DeleteNote();
+                }
             }
 
         } // end if (looking at ring)
-        else
-        { // if we're not looking at anything (so far)
 
-            if (Input.GetKeyUp(KeyCode.UpArrow))
-            {
-                instrumentPalette.activeInstrumentOption.IncrementNote();
-                instrumentPalette.OptionClicked(instrumentPalette.activeInstrumentOption);
-            }
-
-            if (Input.GetKeyUp(KeyCode.DownArrow))
-            {
-                instrumentPalette.activeInstrumentOption.DecrementNote();
-                instrumentPalette.OptionClicked(instrumentPalette.activeInstrumentOption);
-            }
-
-        }
+        // also need a separate case for the InstrumentPalette
         Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
         if (Input.GetMouseButtonUp(0) && Physics.Raycast(ray, out hit, Mathf.Infinity, 1<<14))
         {
             hit.collider.GetComponent<InstrumentOption>().PrimaryInteractUp(this);
         }
+    }
+
+    public void DestroyRing(Ring ring)
+    {
+        rings.Remove(ring);
+        Destroy(ring.ringSpeedController.gameObject);
+        Destroy(ring.gameObject);
+
+        StartCoroutine(MoveRingsToPosition());
     }
 
     IEnumerator MoveRingsToPosition()
