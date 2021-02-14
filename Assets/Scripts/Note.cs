@@ -32,19 +32,21 @@ public class Note : InteractableObject
 
     private void Start()
     {
-        CalculateClipStartTimeAndPitchShift();
+
     }
 
     private void Update()
     {
-        int octave = noteData.pitch / 12;
+        /*
+        if(!audioSource.isPlaying)
+        {
+            int octave = noteData.pitch / 12;
 
-        audioClipStartTime = (float)octave * AllInstruments.noteLengths[noteData.instrumentName];
+            audioClipStartTime = (float)octave * AllInstruments.noteLengths[noteData.instrumentName];
 
-        pitchShiftAmount = (float)(noteData.pitch % 12) - 5f; // % 12 == number of pitches/notes in an octave (including sharps/flats) and - 5 == roughly the middle of an octave
-
-        audioSource.time = audioClipStartTime;
-        audioSource.pitch = Mathf.Pow(1.05946f, pitchShiftAmount);
+            audioSource.time = audioClipStartTime;
+        }
+        */
     }
 
     public void Initialize(NoteData noteDataIn, int noteIDIn)
@@ -61,9 +63,11 @@ public class Note : InteractableObject
 
         GetComponent<MeshRenderer>().material.SetColor("_Color", AllInstruments.instrumentColors[noteData.instrumentName]);
 
-        CalculateClipStartTimeAndPitchShift();
-
-        //PlayNote(false, true);
+        if(Time.realtimeSinceStartup > 5f) // cheating for now; all the Palette's InstrumentOptions play on startup, otherwise
+        {
+            PlayNote();
+        }
+        
     }
 
     public override void PrimaryInteractDown(PlayerInteractionController player = null)
@@ -84,7 +88,7 @@ public class Note : InteractableObject
 
         if (pitchOut >= highestKey)
         {
-            pitchOut = highestKey;            
+            pitchOut = highestKey;
         }
 
         pitchOut = Mathf.Max(0, pitchOut);
@@ -92,7 +96,7 @@ public class Note : InteractableObject
         if (pitchOut != noteData.pitch)
         {
             noteData.pitch = pitchOut;
-            CalculateClipStartTimeAndPitchShift();
+
 
             PlayNote();
         }
@@ -110,29 +114,33 @@ public class Note : InteractableObject
 
     public void PlayNote()
     {
-        CalculateClipStartTimeAndPitchShift();
         StartCoroutine(PlayNote_());
     }
 
     protected IEnumerator PlayNote_()
     {
+        
 
         audioSource.clip = AllInstruments.instruments[noteData.instrumentName];
-        if(!TimeKeeper.mute)
-        {
-            float endTime = AllInstruments.noteLengths[noteData.instrumentName] - (AllInstruments.noteLengths[noteData.instrumentName] * .07f * (pitchShiftAmount > 0 ? pitchShiftAmount : 1f));
 
-            audioSource.PlayScheduled(AudioSettings.dspTime);
-            audioSource.SetScheduledEndTime(AudioSettings.dspTime + endTime);
+        int octave = noteData.pitch / 12;
 
-        }
+        audioClipStartTime = (float)octave * AllInstruments.noteLengths[noteData.instrumentName];
+
+        pitchShiftAmount = (float)(noteData.pitch % 12) - 5f; // % 12 == number of pitches/notes in an octave (including sharps/flats) and - 5 == roughly the middle of an octave
+
+        audioSource.time = audioClipStartTime;
+        audioSource.pitch = Mathf.Pow(1.05946f, pitchShiftAmount);
 
 
-        if (!TimeKeeper.mute)
-        {
-            loudness = 0f;
-            SoundToColorControl.playingNotes.Add(this);
-        }
+        float endTime = AllInstruments.noteLengths[noteData.instrumentName] - (AllInstruments.noteLengths[noteData.instrumentName] * .07f * (pitchShiftAmount > 0 ? pitchShiftAmount : 1f));
+
+        audioSource.PlayScheduled(AudioSettings.dspTime);
+        audioSource.SetScheduledEndTime(AudioSettings.dspTime + endTime);
+
+        loudness = 0f;
+        SoundToColorControl.playingNotes.Add(this);
+        
 
         float playTime = AllInstruments.noteLengths[noteData.instrumentName] - 0.1f; // to avoid the very last frame of the sound file, in case it plays the start of the next key (probably should find a better solution eventually)
         float playTimer = playTime;
@@ -188,7 +196,6 @@ public class Note : InteractableObject
             noteData.pitch = noteData.pitch - highestKey;
         }
 
-        CalculateClipStartTimeAndPitchShift();
     }
 
     public void DecrementNote()
@@ -208,19 +215,6 @@ public class Note : InteractableObject
             noteData.pitch = highestKey + noteData.pitch; // because noteData.pitch will be negative, so it'll put it towards the end of the range
         }
 
-        CalculateClipStartTimeAndPitchShift();
-    }
-
-    public virtual void CalculateClipStartTimeAndPitchShift() // specific enough?
-    {
-        int octave = noteData.pitch / 12;
-
-        audioClipStartTime = (float)octave * AllInstruments.noteLengths[noteData.instrumentName];
-
-        pitchShiftAmount = (float)(noteData.pitch % 12) - 5f; // % 12 == number of pitches/notes in an octave (including sharps/flats) and - 5 == roughly the middle of an octave
-
-        audioSource.time = audioClipStartTime;
-        audioSource.pitch = Mathf.Pow(1.05946f, pitchShiftAmount);
     }
 
 

@@ -42,9 +42,4 @@ public class InstrumentOption : Note
         transform.parent.GetComponentInParent<InstrumentPalette>().OptionClicked(this);
         PlayNote();
     }
-
-    public override void CalculateClipStartTimeAndPitchShift()
-    {
-        base.CalculateClipStartTimeAndPitchShift();
-    }
 }

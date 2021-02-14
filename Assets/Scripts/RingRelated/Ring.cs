@@ -34,7 +34,7 @@ public class Ring : MonoBehaviour
         int notePlayed = -100;
         int thirtySecond = TimeKeeper.thirtysecondCounter;
 
-        
+        if(TimeKeeper.mute) { return; }
 
         switch (speed)
         {
@@ -238,13 +238,6 @@ public class Ring : MonoBehaviour
         //StartCoroutine(_CreateNote(newNote));
 
         //newNote.deleteNoteDelegate += RemoveNote;
-    }
-
-    IEnumerator _CreateNote(Note newNote)
-    {
-        yield return new WaitForSeconds(1.06f); // TO DO VERY TEMPORARY
-
-        newNote.CalculateClipStartTimeAndPitchShift();
     }
     /*
     public void CreateNoteFromSave(int noteID, Vector3 localRingPos, int noteKey, string instrumentName)
