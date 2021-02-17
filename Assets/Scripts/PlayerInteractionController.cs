@@ -120,7 +120,7 @@ public class PlayerInteractionController : MonoBehaviour
 
         // rings are special
         if (activeObject == null && Physics.Raycast(transform.position, cam.forward, out hit, Mathf.Infinity, 1 << 10)) // 10 == Ring; activeObject == null is to (at least temporarily) prevent placing notes when, say, changing Ring Rounds
-        {            
+        {
             activeRing = hit.transform.GetComponentInParent<Ring>(); // so it's always important the collision object is the child of the ring
 
             activeRing.GetComponent<MeshRenderer>().material.SetFloat("_CellNumber", (float)hit.collider.gameObject.transform.GetSiblingIndex());
@@ -144,6 +144,7 @@ public class PlayerInteractionController : MonoBehaviour
                     }
                     else if (activeRing.placedNotes.ContainsKey(cellNumber))
                     {
+                        // not working
                         instrumentPalette.activeInstrumentOptionData = activeRing.placedNotes[cellNumber].noteData;
                         activeRing.placedNotes[cellNumber].PlayNote();
                     }
@@ -242,6 +243,19 @@ public class PlayerInteractionController : MonoBehaviour
                 hit.collider.GetComponent<InteractableObject>().SecondaryInteractUp(this);
             }
             
+        }
+
+        if (!paused && activeObject == null && Physics.Raycast(transform.position, cam.forward, out hit, Mathf.Infinity, 1 << 10)) // 10 == Ring; activeObject == null is to (at least temporarily) prevent placing notes when, say, changing Ring Rounds
+        {
+            activeRing = hit.transform.GetComponentInParent<Ring>(); // so it's always important the collision object is the child of the ring
+            // figure out which note spot we're hitting
+            int cellNumber = hit.collider.gameObject.transform.GetSiblingIndex();
+
+            if (activeRing.placedNotes.ContainsKey(cellNumber) && Input.GetMouseButtonUp(0))
+            {
+                instrumentPalette.activeInstrumentOptionData = activeRing.placedNotes[cellNumber].noteData;
+                activeRing.placedNotes[cellNumber].PlayNote();
+            }
         }
     }
 
