@@ -10,53 +10,33 @@ public class LordOfTheRings : MonoBehaviour
 
     public PlayerInteractionController playerController;
     public TimeKeeper timeKeeper; // this is awful, but hard to avoid for now
+    InstrumentPalette instrumentPalette;
 
-    private void Update()
+    public Transform slotSelector;
+    public Transform saveSlotHolder;
+
+    public LoadButton slotButtonSelected;
+
+    private void Start()
     {
-        if (Input.GetKeyUp(KeyCode.F1))
-        {
-            SaveFile("");
-        }
-
-        if (Input.GetKeyUp(KeyCode.F2))
-        {
-            SaveFile("1");
-        }
-
-        if (Input.GetKeyUp(KeyCode.F3))
-        {
-            SaveFile("2");
-        }
-
-        if (Input.GetKeyUp(KeyCode.F4))
-        {
-            SaveFile("3");
-        }
-
-        if (Input.GetKeyUp(KeyCode.F5))
-        {
-            LoadFile("");
-        }
-
-        if (Input.GetKeyUp(KeyCode.F6))
-        {
-            LoadFile("1");
-        }
-
-        if (Input.GetKeyUp(KeyCode.F7))
-        {
-            LoadFile("2");
-        }
-
-        if (Input.GetKeyUp(KeyCode.F8))
-        {
-            LoadFile("3");
-        }
+        instrumentPalette = GameObject.FindObjectOfType<InstrumentPalette>();
     }
 
-    public void SaveFile(string number)
+    public int saveSlotSelected = -1;
+
+    public void SlotSelected(LoadButton saveSlotButton)
     {
-        string destination = Application.persistentDataPath + "/save" + number + ".dat";
+        slotButtonSelected = saveSlotButton;
+        saveSlotSelected = saveSlotButton.saveSlot;
+    }
+
+    public void SaveFile()
+    {
+        if (saveSlotSelected < 0) { return; }
+
+        slotButtonSelected.GetComponent<SpriteRenderer>().color = new Color(1f, 1f, 1f, 1f);
+
+        string destination = Application.persistentDataPath + "/save" + saveSlotSelected.ToString() + ".dat";
         FileStream file;
 
         if (File.Exists(destination)) file = File.OpenWrite(destination);
@@ -64,13 +44,14 @@ public class LordOfTheRings : MonoBehaviour
 
         // we just round up all the rings and record each note's info and a little bit about the ring (offset and rounds active)
         List<List<int>> noteIDs = new List<List<int>>();
-        List<List<int>> noteKeys = new List<List<int>>();
+        List<List<int>> notePitches = new List<List<int>>();
         List<List<string>> noteInstruments = new List<List<string>>();
-        List<bool> offsets = new List<bool>();
-        List<List<int>> roundsActive = new List<List<int>>();
+        List<int> ringSpeeds = new List<int>();
 
-        List<List<float>> xPositions = new List<List<float>>();
-        List<List<float>> zPositions = new List<List<float>>();
+        List<List<List<bool>>> speedZeroRoundsActive = new List<List<List<bool>>>();
+        List<List<List<bool>>> speedOneRoundsActive = new List<List<List<bool>>>();
+        List<List<List<bool>>> speedTwoRoundsActive = new List<List<List<bool>>>();
+        List<List<List<bool>>> speedThreeRoundsActive = new List<List<List<bool>>>();
 
 
         foreach (Ring ring in Object.FindObjectsOfType<Ring>())
@@ -80,43 +61,39 @@ public class LordOfTheRings : MonoBehaviour
             List<int> ringNoteKeys = new List<int>();
             List<string> ringNoteInstruments = new List<string>();
 
-            bool ringOffset = ring.IsOffset();
-
-            List<float> xPosses = new List<float>();
-            List<float> zPosses = new List<float>();
-
             foreach (int key in ring.placedNotes.Keys)
             {
                 Note note = ring.placedNotes[key];
 
                 ringNoteIDs.Add(key);
                 ringNoteKeys.Add(note.noteData.pitch); // key and startTime are interchangeable, which can be confusing but it's really convenient when playing the AudioClip
-                ringNoteInstruments.Add(note.noteData.instrumentName);
-
-                xPosses.Add(note.transform.localPosition.x);
-                zPosses.Add(note.transform.localPosition.z);
+                ringNoteInstruments.Add(note.noteData.instrumentName);                
             }
 
             noteIDs.Add(ringNoteIDs);
-            noteKeys.Add(ringNoteKeys);
+            notePitches.Add(ringNoteKeys);
             noteInstruments.Add(ringNoteInstruments);
-            offsets.Add(ringOffset);
-            roundsActive.Add(ring.GetRoundsActive());
 
-            xPositions.Add(xPosses);
-            zPositions.Add(zPosses);
+            speedZeroRoundsActive.Add(ring.speedZeroRoundsActive);
+            speedOneRoundsActive.Add(ring.speedOneRoundsActive);
+            speedTwoRoundsActive.Add(ring.speedTwoRoundsActive);
+            speedThreeRoundsActive.Add(ring.speedThreeRoundsActive);
+
+            ringSpeeds.Add(ring.speed);
         }
 
         noteIDs.Reverse();
-        noteKeys.Reverse();
+        notePitches.Reverse();
         noteInstruments.Reverse();
-        offsets.Reverse();
-        roundsActive.Reverse();
 
-        xPositions.Reverse();
-        zPositions.Reverse();
+        speedZeroRoundsActive.Reverse();
+        speedOneRoundsActive.Reverse();
+        speedTwoRoundsActive.Reverse();
+        speedThreeRoundsActive.Reverse();
 
-        GameData data = new GameData(noteIDs, noteKeys, noteInstruments, offsets, xPositions, zPositions, roundsActive);
+        ringSpeeds.Reverse();
+
+        GameData data = new GameData(noteIDs, notePitches, noteInstruments, ringSpeeds, speedZeroRoundsActive, speedOneRoundsActive, speedTwoRoundsActive, speedThreeRoundsActive);
         BinaryFormatter bf = new BinaryFormatter();
 
         bf.Serialize(file, data);
@@ -125,15 +102,18 @@ public class LordOfTheRings : MonoBehaviour
 
 
 
-    public void LoadFile(string number)
+    public void LoadFile()
     {
-        string destination = Application.persistentDataPath + "/save" + number + ".dat";
+
+        if(saveSlotSelected < 0) { return; }
+
+        string destination = Application.persistentDataPath + "/save" + saveSlotSelected.ToString() + ".dat";
         FileStream file;
 
         if (File.Exists(destination)) file = File.OpenRead(destination);
         else
         {
-            Debug.LogError("File not found");
+            Debug.Log("File not found");
             return;
         }
 
@@ -141,42 +121,60 @@ public class LordOfTheRings : MonoBehaviour
         GameData data = (GameData)bf.Deserialize(file);
         file.Close();
 
-        foreach (Ring o in Object.FindObjectsOfType<Ring>())
+
+        playerController.LoadNew(); // destroys all Rings
+
+        
+        // first, if for some reason someone saved an empty game
+        if(data.ringSpeeds.Count == 0)
         {
-            Destroy(o.gameObject);
+            return;
         }
 
-        playerController.LoadNew();
+        // destroy all RoundReps
+        RoundRep[] roundReps = GameObject.FindObjectsOfType<RoundRep>();
 
-        int highestRound = 0;
+        foreach (RoundRep rr in roundReps)
+        {
+            Destroy(rr.gameObject);
+        }
 
-        for (int i = 0; i < data.noteIDs.Count; i++)
+        TimeKeeper.numberOfRounds = 0;
+
+        // recreate them accordingly
+        int numberOfRounds = data.speedOneRoundsActive[0].Count; // grab the number of Rounds from the first Ring to get how many rounds there are
+
+        for(int i = 0; i < numberOfRounds; i++)
+        {
+            timeKeeper.CreateRound();
+        }
+                
+        // create the Rings
+        for (int i = 0; i < data.ringSpeeds.Count; i++)
         {
 
             Ring newRing = playerController.CreateRing();
 
-            for (int j = 0; j < data.noteIDs[i].Count; j++)
+            newRing.speedZeroRoundsActive = data.speedZeroRoundsActive[i];
+            newRing.speedOneRoundsActive = data.speedOneRoundsActive[i];
+            newRing.speedTwoRoundsActive = data.speedTwoRoundsActive[i];
+            newRing.speedThreeRoundsActive = data.speedThreeRoundsActive[i];
+
+            newRing.SetSpeed(data.ringSpeeds[i]);
+
+            for(int n = 0; n < data.noteIDs[i].Count; n++)
             {
-                Vector3 pos = new Vector3(data.xPositions[i][j], 0f, data.zPositions[i][j]);
-                //newRing.CreateNoteFromSave(data.noteIDs[i][j], pos, data.noteKeys[i][j], data.noteInstruments[i][j]);
+                NoteData newNoteData = new NoteData();
+
+                newNoteData.pitch = data.notePitches[i][n];
+                newNoteData.instrumentName = data.noteInstruments[i][n];
+
+                newRing.CreateNote(newNoteData, data.noteIDs[i][n], newRing.transform.GetChild(data.noteIDs[i][n]));
             }
 
-            if (data.offsets[i])
-            {
-                newRing.ToggleOffset();
-            }
-
-            newRing.SetRoundsActive(data.roundsActive[i]);
-            foreach(int r in data.roundsActive[i])
-            {
-                if (r > highestRound)
-                {
-                    highestRound = r;
-                }
-            }
         }
 
-        timeKeeper.SetRounds(highestRound + 1);
+        //timeKeeper.SetRounds(numberOfRounds);
     }
 }
 
@@ -184,22 +182,27 @@ public class LordOfTheRings : MonoBehaviour
 public class GameData
 {
     public List<List<int>> noteIDs;
-    public List<List<float>> xPositions;
-    public List<List<float>> zPositions;
-    public List<List<int>> noteKeys;
+    public List<List<int>> notePitches;
     public List<List<string>> noteInstruments;
-    public List<bool> offsets;
-    public List<List<int>> roundsActive;
 
-    public GameData(List<List<int>> noteIDs_, List<List<int>> noteKeys_, List<List<string>> noteInstruments_, List<bool> offsets_, List<List<float>> xPositions_, List<List<float>> zPositions_, List<List<int>> roundsActive_)
+    public List<int> ringSpeeds;
+
+    public List<List<List<bool>>> speedZeroRoundsActive;
+    public List<List<List<bool>>> speedOneRoundsActive;
+    public List<List<List<bool>>> speedTwoRoundsActive;
+    public List<List<List<bool>>> speedThreeRoundsActive;
+
+    public GameData(List<List<int>> noteIDs_, List<List<int>> notePitches_, List<List<string>> noteInstruments_, List<int> _ringSpeeds, List<List<List<bool>>> _speedZeroRoundsActive, List<List<List<bool>>> _speedOneRoundsActive, List<List<List<bool>>> _speedTwoRoundsActive, List<List<List<bool>>> _speedThreeRoundsActive)
     {
         noteIDs = noteIDs_;
-        noteKeys = noteKeys_;
+        notePitches = notePitches_;
         noteInstruments = noteInstruments_;
-        offsets = offsets_;
-        roundsActive = roundsActive_;
 
-        xPositions = xPositions_;
-        zPositions = zPositions_;
+        ringSpeeds = _ringSpeeds;
+
+        speedZeroRoundsActive = _speedZeroRoundsActive;
+        speedOneRoundsActive = _speedOneRoundsActive;
+        speedTwoRoundsActive = _speedTwoRoundsActive;
+        speedThreeRoundsActive = _speedThreeRoundsActive;
     }
 }

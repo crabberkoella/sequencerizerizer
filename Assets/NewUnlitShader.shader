@@ -1,9 +1,8 @@
-﻿Shader "Unlit/Unicron"
+﻿Shader "Unlit/NewUnlitShader"
 {
     Properties
     {
         _MainTex ("Texture", 2D) = "white" {}
-		_CellNumber("Cell Number", float) = -1
     }
     SubShader
     {
@@ -35,7 +34,6 @@
 
             sampler2D _MainTex;
             float4 _MainTex_ST;
-			float _CellNumber;
 
             v2f vert (appdata v)
             {
@@ -48,43 +46,8 @@
 
             fixed4 frag (v2f i) : SV_Target
             {
-
-				float vertical = i.uv.y;// - 0.00125;
-
-				if(vertical < 0.0625/2.0)
-				{
-					vertical = 1.0 - vertical;
-				}
-
-				vertical = fmod(vertical, 0.0625);
-				float _out = 1;
-
-				float test = _CellNumber;
-				if(test == 0)
-				{
-					test = 16.0;
-				}
-
-				if (abs(vertical - 0.16) < 0.1)
-				{
-					_out = 0;
-					float v2 = i.uv.y;
-					if(v2 < 0.0625/2.0)
-					{
-						v2 = 1.0 - v2;
-					}
-					float c = v2 / 0.0625;
-					if( abs(test - c) < 0.5)
-					{
-						return fixed4(0, 1, 0, 1);
-					}
-				}else
-				{
-					_out = 1;
-				}
-
-
-                fixed4 col = fixed4(_out, _out, _out, 1);
+                // sample the texture
+                fixed4 col = tex2D(_MainTex, i.uv);
                 // apply fog
                 UNITY_APPLY_FOG(i.fogCoord, col);
                 return col;

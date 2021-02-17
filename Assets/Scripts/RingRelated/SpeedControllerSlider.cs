@@ -11,6 +11,8 @@ public class SpeedControllerSlider : InteractableObject
     private void Start()
     {
         ringSpeedController = GetComponentInParent<RingSpeedController>();
+
+        transform.localPosition = new Vector3(transform.localPosition.x, -0.5f + ((float)ringSpeedController.ownerRing.speed * 0.5f), transform.localPosition.z);
     }
 
     public override void PrimaryInteractDown(PlayerInteractionController player = null)

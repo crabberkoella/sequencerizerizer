@@ -12,24 +12,16 @@ public class Ring : MonoBehaviour
 
     public RingSpeedController ringSpeedController;
 
-    bool offset = false;
-    int speed = 2;
-
-    List<int> roundsActive = new List<int>();
+    public int speed = 2;
 
     // genius, or the dumbest thing ever built?
-    List<List<bool>> speedZeroRoundsActive;
-    List<List<bool>> speedOneRoundsActive;
-    List<List<bool>> speedTwoRoundsActive;
-    List<List<bool>> speedThreeRoundsActive;
+    public List<List<bool>> speedZeroRoundsActive;
+    public List<List<bool>> speedOneRoundsActive;
+    public List<List<bool>> speedTwoRoundsActive;
+    public List<List<bool>> speedThreeRoundsActive;
 
     void Update()
     {
-        // we're asking a couple of Contains() every Update to check if a Note should be played, but it keeps things orderly even if it's not hyper-efficient
-        if (roundsActive.Contains(TimeKeeper.roundCounter) == false)
-        {
-            //return;
-        }
 
         int notePlayed = -100;
         int thirtySecond = TimeKeeper.thirtysecondCounter;
@@ -44,7 +36,7 @@ public class Ring : MonoBehaviour
                     notePlayed = thirtySecond / 8;
                 }
 
-                if (TimeKeeper.thirtysecondPlayedThisFrame && speedZeroRoundsActive[TimeKeeper.roundCounter][0] && placedNotes.ContainsKey(notePlayed)) // notePlayed == 16th counter (old)
+                if (TimeKeeper.thirtysecondPlayedThisFrame && placedNotes.ContainsKey(notePlayed) && speedZeroRoundsActive[TimeKeeper.roundCounter][0]) // notePlayed == 16th counter (old)
                 {
                     placedNotes[notePlayed].PlayNote();
                 }
@@ -56,18 +48,18 @@ public class Ring : MonoBehaviour
                     notePlayed = (thirtySecond % 64) / 4;
                 }
 
-                if (TimeKeeper.thirtysecondPlayedThisFrame && speedOneRoundsActive[TimeKeeper.roundCounter][thirtySecond / 64] && placedNotes.ContainsKey(notePlayed)) // notePlayed == 16th counter (old)
+                if (TimeKeeper.thirtysecondPlayedThisFrame && placedNotes.ContainsKey(notePlayed) && speedOneRoundsActive[TimeKeeper.roundCounter][thirtySecond / 64]) // notePlayed == 16th counter (old)
                 {
                     placedNotes[notePlayed].PlayNote();
                 }
                 break;
             case 2:
                 if (thirtySecond % 2 == 0) // to prevent 16th's getting played twice, because of the way int's divide by 2
-                {
+                {                    
                     notePlayed = (thirtySecond % 32) / 2;
                 }
 
-                if (TimeKeeper.thirtysecondPlayedThisFrame && speedTwoRoundsActive[TimeKeeper.roundCounter][thirtySecond / 32] && placedNotes.ContainsKey(notePlayed)) // notePlayed == 16th counter (old)
+                if (TimeKeeper.thirtysecondPlayedThisFrame && placedNotes.ContainsKey(notePlayed) && speedTwoRoundsActive[TimeKeeper.roundCounter][thirtySecond / 32]) // notePlayed == 16th counter (old)
                 {
                     placedNotes[notePlayed].PlayNote();
                 }
@@ -75,7 +67,7 @@ public class Ring : MonoBehaviour
             case 3:
                 notePlayed = thirtySecond % 16;
 
-                if (TimeKeeper.thirtysecondPlayedThisFrame && speedThreeRoundsActive[TimeKeeper.roundCounter][thirtySecond / 16] && placedNotes.ContainsKey(notePlayed)) // notePlayed == 16th counter (old)
+                if (TimeKeeper.thirtysecondPlayedThisFrame && placedNotes.ContainsKey(notePlayed) && speedThreeRoundsActive[TimeKeeper.roundCounter][thirtySecond / 16]) // notePlayed == 16th counter (old)
                 {
                     placedNotes[notePlayed].PlayNote();
                 }
@@ -206,14 +198,16 @@ public class Ring : MonoBehaviour
             }else if (ringRound.roundNumber > roundNumberRemoved)
             {
                 ringRound.roundNumber -= 1;
-                ringRound.transform.localEulerAngles = new Vector3(0f, 12f + (ringRound.roundNumber * 6f), 0f);
+                ringRound.transform.localEulerAngles = new Vector3(0f, 20f + (ringRound.roundNumber * 6f), 0f);
             }
             else
             {
                 roundToDestroy = ringRound;
+                
             }
 
         }
+        ringRounds.Remove(roundToDestroy);
 
         speedZeroRoundsActive.RemoveAt(roundNumberRemoved);
         speedOneRoundsActive.RemoveAt(roundNumberRemoved);
@@ -235,41 +229,6 @@ public class Ring : MonoBehaviour
 
         placedNotes[noteID] = newNote;
 
-        //StartCoroutine(_CreateNote(newNote));
-
-        //newNote.deleteNoteDelegate += RemoveNote;
-    }
-    /*
-    public void CreateNoteFromSave(int noteID, Vector3 localRingPos, int noteKey, string instrumentName)
-    {
-        Note newNote = Instantiate(notePrefab, transform, true);
-        newNote.transform.localPosition = localRingPos;
-
-        newNote.NoteStupidConstructor(this, noteKey, noteID, instrumentName);
-
-        placedNotes[noteID] = newNote;
-    }
-    */
-
-    public void ToggleOffset()
-    {
-        offset = !offset;
-        transform.rotation = (offset ? Quaternion.Euler(0f, 5.625f/2f, 180f) : Quaternion.identity); // TO DO make compatible with rotating rings
-    }
-
-    public bool IsOffset()
-    {
-        return offset;
-    }
-
-    public List<int> GetRoundsActive()
-    {
-        return roundsActive;
-    }
-
-    public void SetRoundsActive(List<int> roundsActiveIn)
-    {
-        roundsActive = roundsActiveIn;
     }
 
     public void RemoveNote(Note note)

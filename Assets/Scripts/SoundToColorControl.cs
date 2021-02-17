@@ -30,7 +30,9 @@ public class SoundToColorControl : MonoBehaviour
             loudness += note.loudness;
             color += note.outColor * loudness;
         }
+
         mat.SetFloat("_Loudness", loudness);
         mat.SetColor("_Color", color);
+
     }
 }

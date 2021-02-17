@@ -50,7 +50,7 @@
 			//float H = 1.0 - i.uv.y;
 			//float R = abs(H * 6.0f - 3.0f) - 1.0f;
 			//float G = 2.0f - abs(H * 6.0f - 2.0f);
-			//float B = 2.0f - abs(H * 6.0f - 4.0f);  
+			//float B = 2.0f - abs(H * 6.0f - 4.0f);
 
 			//col = fixed4(col.r * R, col.g * G, col.b * B, 1.0);
 

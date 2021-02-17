@@ -1,9 +1,8 @@
-﻿Shader "Unlit/SkyboxSequencerizer"
+﻿Shader "Unlit/SimpleToggleRingRound"
 {
     Properties
     {
-        _Color ("Color", Color) = (1, 1, 1, 1)
-		_Loudness("Loudness", Range(0, 1)) = 0
+        _Strength ("Strength", float) = 1
         _MainTex ("Texture", 2D) = "white" {}
     }
     SubShader
@@ -34,8 +33,7 @@
                 float4 vertex : SV_POSITION;
             };
 
-			fixed4 _Color;
-			float _Loudness;
+			float _Strength;
             sampler2D _MainTex;
             float4 _MainTex_ST;
 
@@ -44,39 +42,20 @@
                 v2f o;
                 o.vertex = UnityObjectToClipPos(v.vertex);
                 o.uv = TRANSFORM_TEX(v.uv, _MainTex);
+                UNITY_TRANSFER_FOG(o,o.vertex);
                 return o;
             }
 
             fixed4 frag (v2f i) : SV_Target
             {
-                float maxLoudness = 1.5;
-                float loudness = min(1.0, _Loudness / maxLoudness);
-                
-                float maxHeight = 0.8;
-                float totalHeight = loudness * maxHeight;
-
-                float start = totalHeight * 0.2;
-                float end = start + (totalHeight * 0.35);
-
-                float yPos = i.uv.y * maxHeight;
-
-                if(yPos < end)
+                // sample the texture
+                if(i.uv.y < 0.1)
                 {
-                    if(yPos < start)
-                    {
-                        return _Color;
-                    }
-
-                    float c = end - start;
-                    float actually = yPos - start;
-                    float cOut = 1.0 - (actually / c);
-
-                    return fixed4(_Color.r * cOut, _Color.g * cOut, _Color.b * cOut, 1);
+                    return fixed4(1 - _Strength, 1 - _Strength, 1 - _Strength, 1);
                 }
+                fixed4 col = float4(_Strength, _Strength, _Strength, 1.0);
 
-                //fixed4 col = fixed4(_Color.r * colorMultiplier, _Color.g * colorMultiplier, _Color.b * colorMultiplier, 1);
-
-                return fixed4(0, 0, 0, 1);
+                return col;
             }
             ENDCG
         }

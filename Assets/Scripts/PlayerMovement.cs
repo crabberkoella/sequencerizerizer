@@ -26,14 +26,26 @@ public class PlayerMovement : MonoBehaviour
         cam = transform.GetChild(0);
         playerController = GetComponent<PlayerInteractionController>();
         rigidBody = GetComponent<Rigidbody>();
+
     }
 
-    
+    public bool justUnpaused = true; // why... well... Unity is why
 
     void Update()
     {
 
-        if(playerController.paused || TimeKeeper.selectingActiveRounds) { return; }
+        if(playerController.paused) { return; }
+
+
+        if(Mathf.Abs(Input.GetAxis("Mouse X")) > 0f || Mathf.Abs(Input.GetAxis("Mouse Y")) > 0f)
+        {
+            if(justUnpaused)
+            {
+                justUnpaused = false;
+                return;
+            }
+        }
+        
 
         if (Input.GetKey(KeyCode.LeftShift)) { superSpeed = 3f; }
         else { superSpeed = 1f; }
@@ -44,20 +56,55 @@ public class PlayerMovement : MonoBehaviour
             transform.Rotate(transform.up, Input.GetAxis("Mouse X") * rotateSpeed);
         }
 
-        if (Input.GetAxis("Mouse Y") > 0f && internalRotation.x > -88f)
+        if(Time.timeSinceLevelLoad > 1f) // TO DO duuuumb
         {
-            internalRotation.x -= Input.GetAxis("Mouse Y") * rotateSpeed * (tweakingNote ? 0.25f : 1f);
-        }
+            if (Input.GetAxis("Mouse Y") > 0f && internalRotation.x > -88f)
+            {
+                internalRotation.x -= Input.GetAxis("Mouse Y") * rotateSpeed * (tweakingNote ? 0.25f : 1f);
+            }
 
-        if (Input.GetAxis("Mouse Y") < 0f && internalRotation.x < 88f)
-        {
-            internalRotation.x -= Input.GetAxis("Mouse Y") * rotateSpeed * (tweakingNote ? 0.25f : 1f);
+            if (Input.GetAxis("Mouse Y") < 0f && internalRotation.x < 88f)
+            {
+                internalRotation.x -= Input.GetAxis("Mouse Y") * rotateSpeed * (tweakingNote ? 0.25f : 1f);
+            }
         }
+        
 
         cam.localEulerAngles = internalRotation;
 
-        // movement
-        if (Input.GetKey(KeyCode.W))
+        if(Input.GetKeyDown(KeyCode.W) || Input.GetKeyDown(KeyCode.A) || Input.GetKeyDown(KeyCode.S) || Input.GetKeyDown(KeyCode.D) || Input.GetKeyDown(KeyCode.Q) || Input.GetKeyDown(KeyCode.E))
+        {
+            if(grounded && !Input.GetKeyDown(KeyCode.E))
+            {
+
+                playerController.GetThrusterSource().Stop(); // just in case we were flying and hit the ground
+                if(!playerController.GetFootstepsSource().isPlaying)
+                {
+                    playerController.GetFootstepsSource().Play();
+                }                
+            }else
+            {
+                if (!playerController.GetThrusterSource().isPlaying)
+                {
+                    playerController.GetThrusterSource().Play();
+                }
+                playerController.GetFootstepsSource().Stop();
+            }
+        }
+
+        if (Input.GetKey(KeyCode.W) || Input.GetKey(KeyCode.A) || Input.GetKey(KeyCode.S) || Input.GetKey(KeyCode.D) || Input.GetKeyDown(KeyCode.Q) || Input.GetKeyDown(KeyCode.E))
+        {
+            
+        }else if (Input.GetKeyUp(KeyCode.W) || Input.GetKeyUp(KeyCode.A) || Input.GetKeyUp(KeyCode.S) || Input.GetKeyUp(KeyCode.D) || Input.GetKeyUp(KeyCode.Q) || Input.GetKeyUp(KeyCode.E))
+        {
+            playerController.GetThrusterSource().Stop();
+            playerController.GetFootstepsSource().Stop();
+        }
+
+
+
+            // movement
+            if (Input.GetKey(KeyCode.W))
         {
             if(grounded)
             {

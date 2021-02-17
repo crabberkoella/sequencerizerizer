@@ -21,13 +21,23 @@ public class InstrumentPalette : MonoBehaviour
     float instrumentOptionHeight = .03f; // should get this programmatically, later
     float instrumentOptionMargin = .00043f;
 
+    //Vector3 saveGameStartPos = 
+
     int maxRows = 3;
 
     void Start()
     {
 
         CreatePalette();
+        StartCoroutine(deleteMeLater());
 
+    }
+
+    IEnumerator deleteMeLater()
+    {
+        yield return new WaitForSeconds(1.5f);
+
+        transform.parent.localPosition = new Vector3(0f, -0.127f, 0.608f);
     }
 
     void Update()

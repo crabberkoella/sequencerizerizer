@@ -15,6 +15,9 @@ public class Scratchpad : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        
+        if(Input.GetKeyUp(KeyCode.U))
+        {
+
+        }
     }
 }

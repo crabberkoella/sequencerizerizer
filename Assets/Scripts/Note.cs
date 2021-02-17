@@ -118,8 +118,7 @@ public class Note : InteractableObject
     }
 
     protected IEnumerator PlayNote_()
-    {
-        
+    {        
 
         audioSource.clip = AllInstruments.instruments[noteData.instrumentName];
 
@@ -148,15 +147,10 @@ public class Note : InteractableObject
         {
             float progress = playTimer / playTime;
 
-            if (progress <= 0.5f)
-            {
-                loudness = progress / 5f;
-            }
-            else
-            {
-                loudness = (1.0f - progress) / 5f;
-            }            
-            
+            float l = GetLoudness();
+
+            loudness = l; // (l > 0.05f ? l * 2.5f : 0f);
+
             
             float b = lowestBrightness + (progress * (1f - lowestBrightness));
             GetComponent<MeshRenderer>().material.SetColor("_Brightness", new Color(b, b, b, 1f));
@@ -191,9 +185,9 @@ public class Note : InteractableObject
         }
         
 
-        if(noteData.pitch >= highestKey)
+        if(noteData.pitch > highestKey)
         {
-            noteData.pitch = noteData.pitch - highestKey;
+            noteData.pitch = noteData.pitch - highestKey - 1;
         }
 
     }
@@ -212,8 +206,40 @@ public class Note : InteractableObject
 
         if (noteData.pitch < 0f)
         {
-            noteData.pitch = highestKey + noteData.pitch; // because noteData.pitch will be negative, so it'll put it towards the end of the range
+            noteData.pitch = highestKey + noteData.pitch + 1; // because noteData.pitch will be negative, so it'll put it towards the end of the range
         }
+
+    }
+
+    public float updateStep = 0.1f;
+    public int sampleDataLength = 128;
+
+    private float clipLoudness;
+    private float[] clipSampleData;
+
+    // Use this for initialization
+    void Awake()
+    {
+        clipSampleData = new float[sampleDataLength];
+    }
+
+
+    float GetLoudness()
+    {
+
+        audioSource.clip.GetData(clipSampleData, audioSource.timeSamples); // I read 1024 samples, which is about 80 ms on a 44khz stereo clip, beginning at the current sample position of the clip.
+
+        clipLoudness = 0f;
+
+        foreach (var sample in clipSampleData)
+        {
+            clipLoudness += Mathf.Abs(sample);
+        }
+
+        clipLoudness /= sampleDataLength; // clipLoudness is what you are looking for
+        
+
+        return clipLoudness;
 
     }
 

@@ -18,20 +18,15 @@ public class TimeKeeper : MonoBehaviour
     public static int numberOfRounds = 0;
 
     double lastThirtysecondTime;
-    double lastSixteenthTime;
     
     public static bool mute;
-    public static bool selectingActiveRounds;
 
     float thirtysecondLength = 1f / 16f;
-    float sixteenthLength = 1f / 8f;
 
     public PlayerInteractionController playerController;
-    AudioSource audioSource;
 
     private void Start()
     {
-        lastSixteenthTime = AudioSettings.dspTime;
         lastThirtysecondTime = AudioSettings.dspTime;
         CreateRound();
     }
@@ -99,7 +94,7 @@ public class TimeKeeper : MonoBehaviour
 
         foreach(Ring ring in playerController.rings)
         {
-            ring.RoundRemoved(roundNumberRemoved);
+            ring.RoundRemoved(roundNumberRemoved);            
         }
 
         foreach (RoundRep roundRep in GetComponentsInChildren<RoundRep>())
@@ -113,20 +108,4 @@ public class TimeKeeper : MonoBehaviour
 
     }
 
-    public void SetRounds(int n)
-    {
-        /*
-        numberOfRounds = 1;
-
-        while(activeRoundSelector.childCount > 1)
-        {
-            Destroy(activeRoundSelector.GetChild(-1).gameObject);
-        }
-
-        for(int i = 1; i < n; i++)
-        {
-            CreateRound();
-        }
-        */
-    }
 }
