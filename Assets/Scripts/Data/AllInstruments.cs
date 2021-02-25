@@ -32,7 +32,10 @@ public class AllInstruments : MonoBehaviour
             {"ClassicFunkBoogieBass", noteObjectOcean },
             {"StudioStomps", noteObjectDrum },
             {"ElectronicCowbell", noteObjectBell },
-            {"PawnShopClaps", noteObjectClap }
+            {"PawnShopClaps", noteObjectClap },
+            {"ClassicClean", noteObjectWave },
+            {"BoompBapSub", noteObjectClap },
+            {"BoompBapKick2", noteObjectWave }
         };
 
     }
@@ -45,7 +48,10 @@ public class AllInstruments : MonoBehaviour
         {"ClassicFunkBoogieBass", new Color (.75f, .5f, 0f) },
         {"StudioStomps", new Color (.25f, .5f, 1f) },
         {"ElectronicCowbell", new Color (.8f, 8f, .4f) },
-        {"PawnShopClaps", new Color (.5f, .8f, .0f) }
+        {"PawnShopClaps", new Color (.5f, .8f, .0f) },
+        {"ClassicClean", new Color (.75f, .0f, .75f) },
+        {"BoompBapSub", new Color (.5f, .8f, 1f) },
+        {"BoompBapKick2", new Color (.75f, .7f, .75f) }
     };
 
     // how long a note is for a given instrument
@@ -56,7 +62,10 @@ public class AllInstruments : MonoBehaviour
         {"ClassicFunkBoogieBass", 2f },
         {"StudioStomps", 1f },
         {"ElectronicCowbell", 1f },
-        {"PawnShopClaps", 1f }
+        {"PawnShopClaps", 1f },
+        {"ClassicClean", 2f },
+        {"BoompBapSub", 2f },
+        {"BoompBapKick2", 1f }
     };
 
     // we could calculate it at runtime, but this'll make things much cleaner if we just manually record it, here
@@ -67,7 +76,10 @@ public class AllInstruments : MonoBehaviour
         {"ClassicFunkBoogieBass", 3 },
         {"StudioStomps", 1 },
         {"ElectronicCowbell", 1 },
-        {"PawnShopClaps", 1 }
+        {"PawnShopClaps", 1 },
+        {"ClassicClean", 3 },
+        {"BoompBapSub", 1 },
+        {"BoompBapKick2", 1 }
     };
 
     // this is useful to hone in the starting key, since some have a pretty wide range but the lower extreme is too low to be said 'default'
@@ -78,7 +90,10 @@ public class AllInstruments : MonoBehaviour
         {"ClassicFunkBoogieBass", 18 },
         {"StudioStomps", 6 },
         {"ElectronicCowbell", 6 },
-        {"PawnShopClaps", 6 }
+        {"PawnShopClaps", 6 },
+        {"ClassicClean", 18 },
+        {"BoompBapSub", 6 },
+        {"BoompBapKick2", 6 }
     };
 
     public Dictionary<string, Texture> instrumentNoteTextures;

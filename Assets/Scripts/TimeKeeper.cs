@@ -20,10 +20,24 @@ public class TimeKeeper : MonoBehaviour
     double lastThirtysecondTime;
     
     public static bool mute;
+    public static bool noRoundsUnmuted;
 
     float thirtysecondLength = 1f / 16f;
 
     public PlayerInteractionController playerController;
+
+    List<int> mutedRounds = new List<int>();
+
+    public void ToggleMutedRound(int roundNumber)
+    {
+        if(mutedRounds.Contains(roundNumber))
+        {
+            mutedRounds.Remove(roundNumber);
+        }else
+        {
+            mutedRounds.Add(roundNumber);
+        }
+    }
 
     private void Start()
     {
@@ -33,6 +47,12 @@ public class TimeKeeper : MonoBehaviour
     
     void Update()
     {
+
+        noRoundsUnmuted = (mutedRounds.Count == numberOfRounds ? true : false); // kinda silly, but it works for now
+
+        if (noRoundsUnmuted) { return; }
+
+        
 
         thirtysecondPlayedThisFrame = false;
         sixteenthPlayedThisFrame = false;
@@ -58,6 +78,15 @@ public class TimeKeeper : MonoBehaviour
                     roundCounter = 0;
                 }
 
+            }
+        }
+
+        while (mutedRounds.Contains(roundCounter))
+        {
+            roundCounter += 1;
+            if (roundCounter == numberOfRounds)
+            {
+                roundCounter = 0;
             }
         }
 
@@ -104,6 +133,16 @@ public class TimeKeeper : MonoBehaviour
                 roundRep.roundNumber -= 1;
             }
             roundRep.transform.localEulerAngles = new Vector3(0f, 30f + (roundRep.roundNumber * 20f), 0f);
+        }
+
+        mutedRounds.Remove(roundNumberRemoved);
+
+        for (int i = 0; i < mutedRounds.Count; i++)
+        {
+            if(mutedRounds[i] > roundNumberRemoved)
+            {
+                mutedRounds[i] = mutedRounds[i] - 1; // I don't know how C# treats lists, so just gonna be explicit
+            }
         }
 
     }

@@ -10,6 +10,6 @@ public class MuteToggle : InteractableObject
 
         TimeKeeper.mute = !TimeKeeper.mute;
 
-        GetComponent<MeshRenderer>().material.SetFloat("_Strength", (TimeKeeper.mute ? 0f : 1f));
+        GetComponent<MeshRenderer>().material.SetFloat("_Strength", (TimeKeeper.mute ? 0.1f : 1f));
     }
 }

@@ -12,14 +12,14 @@ public class RingRound : MonoBehaviour
 
     public void SetActive(bool activeIn)
     {
-        if(ringRoundPiePieces.Count == 0)
+        if (ringRoundPiePieces.Count == 0)
         {
             for (int i = 0; i < transform.childCount; i++)
             {
                 ringRoundPiePieces.Add(transform.GetChild(i).GetComponent<RingRoundPiePiece>());
                 ringRoundPiePieces[i].Initialize(i, this);
             }
-        }        
+        }
 
         for (int i = 0; i < ringRoundPiePieces.Count; i++)
         {
@@ -30,6 +30,11 @@ public class RingRound : MonoBehaviour
     public void PieClicked(int pieNumber)
     {
         ownerRing.PieClicked(roundNumber, pieNumber);
+    }
+
+    public void PieRightClicked(bool activeIn)
+    {
+        ownerRing.PieRightClicked(roundNumber, activeIn);
     }
 
 }

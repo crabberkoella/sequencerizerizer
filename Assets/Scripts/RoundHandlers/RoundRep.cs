@@ -7,7 +7,8 @@ public class RoundRep : InteractableObject
 
     public int roundNumber;
     public TimeKeeper timeKeeper;
-    
+
+    bool muted = false;
 
     public override void PrimaryInteractDown(PlayerInteractionController player = null)
     {
@@ -17,6 +18,12 @@ public class RoundRep : InteractableObject
     public override void PrimaryInteractUp(PlayerInteractionController player = null)
     {
         base.PrimaryInteractUp(player);
+
+        muted = !muted;
+        timeKeeper.ToggleMutedRound(roundNumber);
+
+        GetComponent<MeshRenderer>().material.SetFloat("_Strength", (muted ? 0.1f : 1f));
+
     }
 
     public override void SecondaryInteractDown(PlayerInteractionController player = null)

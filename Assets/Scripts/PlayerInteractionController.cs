@@ -303,7 +303,15 @@ public class PlayerInteractionController : MonoBehaviour
 
         for (int i = 0; i < rings.Count; i++)
         {
-            rings[i].transform.position = Vector3.Slerp(startPos[i], new Vector3(0f, 1f + (2f * i), 0f), 1f); // in case it went from ie 0.98f to 1.02f
+            try
+            {
+                rings[i].transform.position = Vector3.Slerp(startPos[i], new Vector3(0f, 1f + (2f * i), 0f), 1f); // in case it went from ie 0.98f to 1.02f
+            }
+            catch(System.ArgumentOutOfRangeException)
+            {
+                // pass
+            }
+            
         }
 
     }

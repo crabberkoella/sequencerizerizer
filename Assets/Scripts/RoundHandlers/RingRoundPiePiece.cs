@@ -18,6 +18,13 @@ public class RingRoundPiePiece : InteractableObject
         //SetActive(!active);
     }
 
+    public override void SecondaryInteractUp(PlayerInteractionController player = null)
+    {
+        base.SecondaryInteractUp(player);
+
+        ringRoundOwner.PieRightClicked(!active);
+    }
+
     public void Initialize(int piePieceIDIn, RingRound ringRoundOwnerIn)
     {
         ringRoundOwner = ringRoundOwnerIn;
@@ -29,7 +36,7 @@ public class RingRoundPiePiece : InteractableObject
     public void SetActive(bool activeIn)
     {
         active = activeIn;
-        GetComponent<MeshRenderer>().material.SetFloat("_Strength", (active ? 1f : 0f));
+        GetComponent<MeshRenderer>().material.SetFloat("_Strength", (active ? 1f : 0.1f));
     }
 
 

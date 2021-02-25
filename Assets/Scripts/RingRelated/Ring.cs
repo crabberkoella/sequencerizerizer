@@ -26,7 +26,7 @@ public class Ring : MonoBehaviour
         int notePlayed = -100;
         int thirtySecond = TimeKeeper.thirtysecondCounter;
 
-        if(TimeKeeper.mute) { return; }
+        if(TimeKeeper.mute || TimeKeeper.noRoundsUnmuted) { return; }
 
         switch (speed)
         {
@@ -75,7 +75,7 @@ public class Ring : MonoBehaviour
         }
     }
 
-    public void PieClicked(int round, int microRound)
+    public void PieClicked(int round, int microRound) // when rightClicked we'll toggle all of them
     {
         switch (speed)
         {
@@ -94,7 +94,37 @@ public class Ring : MonoBehaviour
         }
 
         SetSpeed(speed); // to update the piePieces
-            
+    }
+
+    public void PieRightClicked(int round, bool activeIn)
+    {
+        switch (speed)
+        {
+            case 0:
+                speedZeroRoundsActive[round][0] = activeIn;
+                break;
+            case 1:
+                for (int i = 0; i < 2; i++)
+                {
+                    speedOneRoundsActive[round][i] = activeIn;
+                }
+                
+                break;
+            case 2:
+                for (int i = 0; i < 4; i++)
+                {
+                    speedTwoRoundsActive[round][i] = activeIn;
+                }
+                break;
+            case 3:
+                for (int i = 0; i < 8; i++)
+                {
+                    speedThreeRoundsActive[round][i] = activeIn;
+                }
+                break;
+        }
+
+        SetSpeed(speed);
     }
 
     private void Start()
