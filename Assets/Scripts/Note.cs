@@ -30,6 +30,10 @@ public class Note : InteractableObject
     float mouseDeltaY;
     int pitchStart;
 
+    // temporary noteKeyIndicator info
+    float noteRadius = 0.5f; // in terms of localSize/Position
+    float maxKeyIndicatorScale = 0.0295f;
+
     private void Start()
     {
 
@@ -67,6 +71,8 @@ public class Note : InteractableObject
         {
             PlayNote();
         }
+
+        NoteChanged();
         
     }
 
@@ -97,6 +103,7 @@ public class Note : InteractableObject
         {
             noteData.pitch = pitchOut;
 
+            NoteChanged();
 
             PlayNote();
         }
@@ -168,6 +175,8 @@ public class Note : InteractableObject
 
     public void DeleteNote()
     {
+        SoundToColorControl.playingNotes.Remove(this);
+
         GetComponentInParent<Ring>().RemoveNote(this);
 
         Destroy(gameObject);
@@ -190,6 +199,8 @@ public class Note : InteractableObject
             noteData.pitch = noteData.pitch - highestKey - 1;
         }
 
+        NoteChanged();
+
     }
 
     public void DecrementNote()
@@ -208,6 +219,8 @@ public class Note : InteractableObject
         {
             noteData.pitch = highestKey + noteData.pitch + 1; // because noteData.pitch will be negative, so it'll put it towards the end of the range
         }
+
+        NoteChanged();
 
     }
 
@@ -243,5 +256,34 @@ public class Note : InteractableObject
 
     }
 
+    public void NoteChanged()
+    {
+        if(noteID < 0) { return; } // then we're an InstrumentOption
+
+        float i = (float)(noteData.pitch % 12); 
+        i /= 12f;
+
+        Transform keyIndicator = transform.GetChild(0);
+
+        keyIndicator.localPosition = new Vector3(0f, Mathf.Lerp(-noteRadius, noteRadius, i), 0f);
+        float endScale = 0.025f;
+        float s;
+        Vector3 outScale;
+        if(i < 0.5f)
+        {
+            outScale = Vector3.Slerp(new Vector3(endScale, maxKeyIndicatorScale, endScale), new Vector3(maxKeyIndicatorScale, maxKeyIndicatorScale, maxKeyIndicatorScale), i * 2f);
+
+
+            s = Mathf.Lerp(0.02f, maxKeyIndicatorScale, i * 2f);
+            keyIndicator.localScale = outScale;//new Vector3(s, maxKeyIndicatorScale, s);
+        }else
+        {
+            outScale = Vector3.Slerp(new Vector3(maxKeyIndicatorScale, maxKeyIndicatorScale, maxKeyIndicatorScale), new Vector3(endScale, maxKeyIndicatorScale, endScale), (i - 0.5f) * 2f);
+
+            s = Mathf.Lerp(maxKeyIndicatorScale, 0.02f, (i - 0.5f) * 2f);
+            keyIndicator.localScale = outScale;//new Vector3(s, maxKeyIndicatorScale, s);
+        }
+        
+    }
 
 }
