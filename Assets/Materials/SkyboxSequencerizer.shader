@@ -8,8 +8,9 @@
     }
     SubShader
     {
-        Tags { "RenderType"="Opaque" }
+        Tags { "Queue"="Transparent" "RenderType"="Transparent" }
         LOD 100
+		Blend SrcAlpha OneMinusSrcAlpha
 
         Pass
         {
@@ -71,12 +72,12 @@
                     float actually = yPos - start;
                     float cOut = 1.0 - (actually / c);
 
-                    return fixed4(_Color.r * cOut, _Color.g * cOut, _Color.b * cOut, 1);
+                    return fixed4(_Color.r * cOut, _Color.g * cOut, _Color.b * cOut, min(0.25, cOut));
                 }
 
                 //fixed4 col = fixed4(_Color.r * colorMultiplier, _Color.g * colorMultiplier, _Color.b * colorMultiplier, 1);
 
-                return fixed4(0, 0, 0, 1);
+                return fixed4(0, 0, 0, 0);
             }
             ENDCG
         }
