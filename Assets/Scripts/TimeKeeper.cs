@@ -24,6 +24,8 @@ public class TimeKeeper : MonoBehaviour
 
     float thirtysecondLength = 1f / 16f;
 
+    public Transform timeIndicator; // for some visual feedback on where we are in playback, like the second hand on a clock
+
     public PlayerInteractionController playerController;
 
     List<int> mutedRounds = new List<int>();
@@ -48,11 +50,16 @@ public class TimeKeeper : MonoBehaviour
     void Update()
     {
 
-        noRoundsUnmuted = (mutedRounds.Count == numberOfRounds ? true : false); // kinda silly, but it works for now
+        noRoundsUnmuted = (mutedRounds.Count == numberOfRounds ? true : false); // kinda silly, but it works for now -- actually, it's not silly at all
 
         if (noRoundsUnmuted) { return; }
 
-        
+        float lengthOfRound = thirtysecondLength * 128;
+        float roundProgress = (thirtysecondLength * thirtysecondCounter) / lengthOfRound;
+        roundProgress = Mathf.Lerp(-3f, 3f, roundProgress);
+
+        float timeIndicatorProgress = thirtysecondLength * thirtysecondCounter;
+        timeIndicator.eulerAngles = new Vector3(0f, 20f + (roundCounter * 6f) + roundProgress, 0f);
 
         thirtysecondPlayedThisFrame = false;
         sixteenthPlayedThisFrame = false;
@@ -141,8 +148,14 @@ public class TimeKeeper : MonoBehaviour
         {
             if(mutedRounds[i] > roundNumberRemoved)
             {
-                mutedRounds[i] = mutedRounds[i] - 1; // I don't know how C# treats lists, so just gonna be explicit
+                mutedRounds[i] = mutedRounds[i] - 1; // I don't know how C# treats lists in this case, so just gonna be explicit
             }
+        }
+
+        // take care of the very-important roundCounter
+        if (roundNumberRemoved <= roundCounter)
+        {
+            roundCounter = Mathf.Max(0, roundCounter - 1);
         }
 
     }
