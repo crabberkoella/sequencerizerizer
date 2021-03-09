@@ -265,6 +265,31 @@ public class Ring : MonoBehaviour
     {
         placedNotes.Remove(note.noteID);
     }
+
+    public void OffsetNotes(int direction)
+    {
+        Dictionary<int, Note> newPlacedNotes = new Dictionary<int, Note>();
+
+        foreach(int i in placedNotes.Keys)
+        {
+            int newKey = i + direction;
+            if(newKey < 0)
+            {
+                newKey = 15;
+            }else if (newKey > 15)
+            {
+                newKey = 0;
+            }
+
+            newPlacedNotes[newKey] = placedNotes[i];
+
+            placedNotes[i].noteID = newKey;
+            placedNotes[i].transform.localPosition = transform.GetChild(newKey).localPosition;
+
+        }
+
+        placedNotes = newPlacedNotes;
+    }
     
 
 }

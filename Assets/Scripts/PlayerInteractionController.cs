@@ -261,6 +261,11 @@ public class PlayerInteractionController : MonoBehaviour
 
     public void DestroyRing(Ring ring, bool destroyingAllForLoadGame = false)
     {
+        foreach(int i in ring.placedNotes.Keys)
+        {
+            SoundToColorControl.playingNotes.Remove(ring.placedNotes[i]);
+        }
+
         rings.Remove(ring);
 
         Destroy(ring.ringSpeedController.gameObject);

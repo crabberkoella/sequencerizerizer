@@ -28,14 +28,16 @@ public class AllInstruments : MonoBehaviour
         instrumentNoteTextures = new Dictionary<string, Texture>()
         {
             {"PlasticKeys", noteObjectKeys },
-            {"80sSineSynth", noteObjectWave },
+            {"80sSineSynth", noteObjectKeys },
             {"ClassicFunkBoogieBass", noteObjectOcean },
             {"StudioStomps", noteObjectDrum },
             {"ElectronicCowbell", noteObjectBell },
             {"PawnShopClaps", noteObjectClap },
             {"ClassicClean", noteObjectWave },
             {"BoompBapSub", noteObjectClap },
-            {"BoompBapKick2", noteObjectWave }
+            {"BoompBapKick2", noteObjectDrum },
+            {"Cellos", noteObjectWave },
+            {"Marimba", noteObjectDrum }
         };
 
     }
@@ -51,7 +53,9 @@ public class AllInstruments : MonoBehaviour
         {"PawnShopClaps", new Color (.5f, .8f, .0f) },
         {"ClassicClean", new Color (.75f, .0f, .75f) },
         {"BoompBapSub", new Color (.5f, .8f, 1f) },
-        {"BoompBapKick2", new Color (.75f, .7f, .75f) }
+        {"BoompBapKick2", new Color (.75f, .7f, .75f) },
+        {"Cellos", new Color (.9f, .9f, .9f) },
+        {"Marimba", new Color (.5f, .7f, .4f) }
     };
 
     // how long a note is for a given instrument
@@ -65,7 +69,9 @@ public class AllInstruments : MonoBehaviour
         {"PawnShopClaps", 1f },
         {"ClassicClean", 2f },
         {"BoompBapSub", 2f },
-        {"BoompBapKick2", 1f }
+        {"BoompBapKick2", 1f },
+        {"Cellos", 4f },
+        {"Marimba", 4f }
     };
 
     // we could calculate it at runtime, but this'll make things much cleaner if we just manually record it, here
@@ -79,7 +85,9 @@ public class AllInstruments : MonoBehaviour
         {"PawnShopClaps", 1 },
         {"ClassicClean", 3 },
         {"BoompBapSub", 1 },
-        {"BoompBapKick2", 1 }
+        {"BoompBapKick2", 1 },
+        {"Cellos", 3 },
+        {"Marimba", 3 }
     };
 
     // this is useful to hone in the starting key, since some have a pretty wide range but the lower extreme is too low to be said 'default'
@@ -93,7 +101,9 @@ public class AllInstruments : MonoBehaviour
         {"PawnShopClaps", 6 },
         {"ClassicClean", 18 },
         {"BoompBapSub", 6 },
-        {"BoompBapKick2", 6 }
+        {"BoompBapKick2", 6 },
+        {"Cellos", 6 },
+        {"Marimba", 6 }
     };
 
     public Dictionary<string, Texture> instrumentNoteTextures;

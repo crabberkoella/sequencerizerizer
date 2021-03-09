@@ -19,4 +19,9 @@ public class RingSpeedController : MonoBehaviour
     {
         ownerRing.SetSpeed(speed);
     }
+
+    public void OffsetNotes(int offsetDirection)
+    {
+        ownerRing.OffsetNotes(offsetDirection);
+    }
 }

@@ -67,21 +67,21 @@ public class InstrumentPalette : MonoBehaviour
         {
 
             InstrumentOption instrumentOptionPrefabClone = Instantiate(instrumentOptionPrefab);
-            instrumentOptionPrefabClone.transform.SetParent(instrumentOptionHolder);
+            instrumentOptionPrefabClone.transform.SetParent(instrumentOptionHolder);            
+
+            if (tmpcounter == maxRows)
+            {
+                zPos = instrumentOptionStartPos.z;
+                xPos -= instrumentOptionHeight; // height because it's square (for now)
+
+                tmpcounter = 0;
+            }
 
             instrumentOptionPrefabClone.transform.localPosition = new Vector3(xPos, instrumentOptionStartPos.y, zPos);
             instrumentOptionPrefabClone.transform.localRotation = Quaternion.Euler(Vector3.zero);
 
-            if (tmpcounter == maxRows - 1)
-            {
-                zPos = instrumentOptionStartPos.z;
-                xPos -= instrumentOptionHeight; // height because it's square (for now)
-            }
-            else
-            {
-                zPos -= instrumentOptionHeight + instrumentOptionMargin;
-            }
-            
+
+            zPos -= instrumentOptionHeight + instrumentOptionMargin;
 
             InstrumentOption newInstrumentOption = instrumentOptionPrefabClone.GetComponent<InstrumentOption>();
             NoteData noteData = new NoteData(audioClip.name, AllInstruments.instrumentStartingNotes[audioClip.name]);
