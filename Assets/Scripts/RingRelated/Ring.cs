@@ -20,57 +20,90 @@ public class Ring : MonoBehaviour
     public List<List<bool>> speedTwoRoundsActive;
     public List<List<bool>> speedThreeRoundsActive;
 
+    Material mat;
+
     void Update()
     {
 
         int notePlayed = -100;
         int thirtySecond = TimeKeeper.thirtysecondCounter;
 
-        if(TimeKeeper.mute || TimeKeeper.noRoundsUnmuted) { return; }
+        if(TimeKeeper.mute || TimeKeeper.noRoundsUnmuted)
+        {
+            mat.SetFloat("_PlayheadProgress", 10);
+            return;
+        }
 
         switch (speed)
         {
             case 0:
+
                 if (thirtySecond % 8 == 0)
                 {
                     notePlayed = thirtySecond / 8;
                 }
 
-                if (TimeKeeper.thirtysecondPlayedThisFrame && placedNotes.ContainsKey(notePlayed) && speedZeroRoundsActive[TimeKeeper.roundCounter][0]) // notePlayed == 16th counter (old)
+                if(speedZeroRoundsActive[TimeKeeper.roundCounter][0])
                 {
-                    placedNotes[notePlayed].PlayNote();
-                }
+                    mat.SetFloat("_PlayheadProgress", (TimeKeeper.roundTime % 8.0f) / 8.0f);
+                    if (TimeKeeper.thirtysecondPlayedThisFrame && placedNotes.ContainsKey(notePlayed))
+                    {
+                        placedNotes[notePlayed].PlayNote();
+                    }
+                }else { mat.SetFloat("_PlayheadProgress", 10f); } // just a high number to make it invisible because it's supposed to be 0-1 
 
                 break;
             case 1:
+
                 if (thirtySecond % 4 == 0)
                 {
                     notePlayed = (thirtySecond % 64) / 4;
                 }
 
-                if (TimeKeeper.thirtysecondPlayedThisFrame && placedNotes.ContainsKey(notePlayed) && speedOneRoundsActive[TimeKeeper.roundCounter][thirtySecond / 64]) // notePlayed == 16th counter (old)
+                if(speedOneRoundsActive[TimeKeeper.roundCounter][thirtySecond / 64])
                 {
-                    placedNotes[notePlayed].PlayNote();
+                    mat.SetFloat("_PlayheadProgress", (TimeKeeper.roundTime % 4.0f) / 4.0f);
+                    if (TimeKeeper.thirtysecondPlayedThisFrame && placedNotes.ContainsKey(notePlayed))
+                    {
+                        placedNotes[notePlayed].PlayNote();
+                    }
                 }
+                else { mat.SetFloat("_PlayheadProgress", 10f); }
+
                 break;
             case 2:
+
                 if (thirtySecond % 2 == 0) // to prevent 16th's getting played twice, because of the way int's divide by 2
                 {                    
                     notePlayed = (thirtySecond % 32) / 2;
                 }
 
-                if (TimeKeeper.thirtysecondPlayedThisFrame && placedNotes.ContainsKey(notePlayed) && speedTwoRoundsActive[TimeKeeper.roundCounter][thirtySecond / 32]) // notePlayed == 16th counter (old)
+                if(speedTwoRoundsActive[TimeKeeper.roundCounter][thirtySecond / 32])
                 {
-                    placedNotes[notePlayed].PlayNote();
+                    mat.SetFloat("_PlayheadProgress", (TimeKeeper.roundTime % 2.0f) / 2.0f);
+                    if (TimeKeeper.thirtysecondPlayedThisFrame && placedNotes.ContainsKey(notePlayed))
+                    {
+                        placedNotes[notePlayed].PlayNote();
+                    }
                 }
+                else { mat.SetFloat("_PlayheadProgress", 10f); }
+                
                 break;
             case 3:
+                
+
                 notePlayed = thirtySecond % 16;
 
-                if (TimeKeeper.thirtysecondPlayedThisFrame && placedNotes.ContainsKey(notePlayed) && speedThreeRoundsActive[TimeKeeper.roundCounter][thirtySecond / 16]) // notePlayed == 16th counter (old)
+                if(speedThreeRoundsActive[TimeKeeper.roundCounter][thirtySecond / 16])
                 {
-                    placedNotes[notePlayed].PlayNote();
+                    mat.SetFloat("_PlayheadProgress", (TimeKeeper.roundTime % 1.0f));
+                    if (TimeKeeper.thirtysecondPlayedThisFrame && placedNotes.ContainsKey(notePlayed))
+                    {
+                        placedNotes[notePlayed].PlayNote();
+                    }
                 }
+                else { mat.SetFloat("_PlayheadProgress", 10f); }
+                
                 break;
         }
     }
@@ -129,6 +162,8 @@ public class Ring : MonoBehaviour
 
     private void Start()
     {
+        mat = GetComponent<MeshRenderer>().material;
+
         ringSpeedController = Instantiate(ringSpeedControllerPrefab);
         ringSpeedController.Initialize(this);
 

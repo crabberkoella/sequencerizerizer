@@ -7,6 +7,12 @@ public class RoundAdder : InteractableObject
 
     public TimeKeeper timeKeeper;
 
+    AudioSource audioSource;
+
+    private void Start()
+    {
+        audioSource = GetComponent<AudioSource>();
+    }
     public override void PrimaryInteractDown(PlayerInteractionController player = null)
     {
         base.PrimaryInteractDown(player);
@@ -17,6 +23,8 @@ public class RoundAdder : InteractableObject
         base.PrimaryInteractUp(player);
 
         timeKeeper.CreateRound();
+
+        audioSource.Play();
     }
 
 }

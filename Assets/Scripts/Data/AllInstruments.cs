@@ -44,18 +44,17 @@ public class AllInstruments : MonoBehaviour
 
     public static Dictionary<string, Color> instrumentColors = new Dictionary<string, Color>()
     {
-        {"PlasticKeys", new Color (1f, 0f, 0f) },
-        {"80sSineSynth", new Color (0f, 0f, 1f) },
-        {"DangerBass", new Color (.5f, .25f, .33f) },
-        {"ClassicFunkBoogieBass", new Color (.75f, .5f, 0f) },
-        {"StudioStomps", new Color (.25f, .5f, 1f) },
-        {"ElectronicCowbell", new Color (.8f, 8f, .4f) },
-        {"PawnShopClaps", new Color (.5f, .8f, .0f) },
-        {"ClassicClean", new Color (.75f, .0f, .75f) },
-        {"BoompBapSub", new Color (.5f, .8f, 1f) },
-        {"BoompBapKick2", new Color (.75f, .7f, .75f) },
+        {"PlasticKeys", new Color (0f, 0f, 1f) },
+        {"80sSineSynth", new Color (0.75f, 0f, 1f) },
+        {"ClassicFunkBoogieBass", new Color (.75f, .5f, 0.5f) },
+        {"StudioStomps", new Color (1f, 1f, 0f) },
+        {"ElectronicCowbell", new Color (1f, 0.5f, .4f) },
+        {"PawnShopClaps", new Color (1f, .8f, 1f) },
+        {"ClassicClean", new Color (.75f, .3f, 1f) },
+        {"BoompBapSub", new Color (0.65f, .8f, 0.65f) },
+        {"BoompBapKick2", new Color (.75f, .3f, .45f) },
         {"Cellos", new Color (.9f, .9f, .9f) },
-        {"Marimba", new Color (.5f, .7f, .4f) }
+        {"Marimba", new Color (1f, .7f, .3f) }
     };
 
     // how long a note is for a given instrument

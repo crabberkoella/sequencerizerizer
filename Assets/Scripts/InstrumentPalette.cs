@@ -28,7 +28,7 @@ public class InstrumentPalette : MonoBehaviour
     void Start()
     {
 
-        CreatePalette();
+        //CreatePalette(); we're temporarily doing it manually
         StartCoroutine(deleteMeLater());
 
     }
@@ -84,6 +84,8 @@ public class InstrumentPalette : MonoBehaviour
             zPos -= instrumentOptionHeight + instrumentOptionMargin;
 
             InstrumentOption newInstrumentOption = instrumentOptionPrefabClone.GetComponent<InstrumentOption>();
+
+
             NoteData noteData = new NoteData(audioClip.name, AllInstruments.instrumentStartingNotes[audioClip.name]);
 
             newInstrumentOption.Initialize(noteData, -1); // -1 is noteID, but instrumentOptions don't use it

@@ -16,8 +16,12 @@ public class TimeKeeper : MonoBehaviour
     public static int roundCounter = 0;
     public static int notePlayed; // basically changing sixteenthCounter and beatCounter to a 0 - 63 number
     public static int numberOfRounds = 0;
+    //public static float roundProgress = 10f;
+    float timeAtRoundStart;
+    float lengthOfRound;
+    public static float roundTime;
 
-    double lastThirtysecondTime;
+    float lastThirtysecondTime;
     
     public static bool mute;
     public static bool noRoundsUnmuted;
@@ -29,6 +33,8 @@ public class TimeKeeper : MonoBehaviour
     public PlayerInteractionController playerController;
 
     List<int> mutedRounds = new List<int>();
+
+    AudioSource audioSource;
 
     public void ToggleMutedRound(int roundNumber)
     {
@@ -43,34 +49,31 @@ public class TimeKeeper : MonoBehaviour
 
     private void Start()
     {
-        lastThirtysecondTime = AudioSettings.dspTime;
+        audioSource = GetComponent<AudioSource>();
+        audioSource.pitch = -1f;
+        audioSource.time = audioSource.clip.length * 0.95f;
+
+        lengthOfRound = thirtysecondLength * 128f;
+
+        timeAtRoundStart = Time.time;
+
         CreateRound();
     }
-    
+        
     void Update()
     {
 
         noRoundsUnmuted = (mutedRounds.Count == numberOfRounds ? true : false); // kinda silly, but it works for now -- actually, it's not silly at all
+        thirtysecondPlayedThisFrame = false;
 
         if (noRoundsUnmuted) { return; }
 
-        float lengthOfRound = thirtysecondLength * 128;
-        float roundProgress = (thirtysecondLength * thirtysecondCounter) / lengthOfRound;
-        roundProgress = Mathf.Lerp(-3f, 3f, roundProgress);
+        float time = Time.time;
+        roundTime = time - timeAtRoundStart;
 
-        float timeIndicatorProgress = thirtysecondLength * thirtysecondCounter;
-        timeIndicator.eulerAngles = new Vector3(0f, 20f + (roundCounter * 6f) + roundProgress, 0f);
-
-        thirtysecondPlayedThisFrame = false;
-        sixteenthPlayedThisFrame = false;
-
-
-        double time = AudioSettings.dspTime;
-        
-        if(time - lastThirtysecondTime > thirtysecondLength)//lastSixteenthTime > sixteenthLength)
+        if (roundTime / thirtysecondLength > thirtysecondCounter)
         {
-            thirtysecondCounter += 1;
-            lastThirtysecondTime = time;
+            thirtysecondCounter++;
 
             thirtysecondPlayedThisFrame = true;
 
@@ -80,6 +83,8 @@ public class TimeKeeper : MonoBehaviour
 
                 roundCounter += 1;
 
+                timeAtRoundStart += lengthOfRound;
+
                 if (roundCounter >= numberOfRounds)
                 {
                     roundCounter = 0;
@@ -88,6 +93,40 @@ public class TimeKeeper : MonoBehaviour
             }
         }
 
+        /*
+        float lengthOfRound = thirtysecondLength * 128f;
+        float roundProgress = (thirtysecondLength * thirtysecondCounter) + (time - lastThirtysecondTime);
+        roundProgress /= lengthOfRound;
+
+        roundProgress = Mathf.Lerp(-3f, 3f, roundProgress);
+
+        timeIndicator.eulerAngles = new Vector3(0f, 20f + (roundCounter * 6f) + roundProgress, 0f);
+        
+        
+        
+        
+        if(time - lastThirtysecondTime >= thirtysecondLength)
+        {
+            thirtysecondCounter += 1;
+
+            thirtysecondPlayedThisFrame = true;
+
+            if (thirtysecondCounter == 128)
+            {
+                thirtysecondCounter = 0;
+
+                roundCounter += 1;
+
+                timeSinceLastRound = Time.time;
+
+                if (roundCounter >= numberOfRounds)
+                {
+                    roundCounter = 0;
+                }
+
+            }
+        }
+        */
         while (mutedRounds.Contains(roundCounter))
         {
             roundCounter += 1;
@@ -99,7 +138,7 @@ public class TimeKeeper : MonoBehaviour
 
         if (Input.GetKeyUp(KeyCode.M))
         {
-            mute = !mute;
+            //mute = !mute;
         }
 
 
@@ -157,6 +196,8 @@ public class TimeKeeper : MonoBehaviour
         {
             roundCounter = Mathf.Max(0, roundCounter - 1);
         }
+
+        audioSource.Play();
 
     }
 
